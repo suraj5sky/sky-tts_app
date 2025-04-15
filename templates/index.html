@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SKY TTS - Professional Text-to-Speech conversion with multiple voices and languages. Convert any text to natural sounding speech instantly.">
+    <meta name="keywords" content="text to speech, TTS, voice generator, speech synthesis, SKY TTS">
+    <title>SKY TTS - Professional Text to Speech Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #ef233c;
+            --bg-color: #f5f7fa;
+            --text-color: #212529;
+            --card-bg: white;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --text-color: #f8f9fa;
+            --card-bg: #1e1e1e;
+            --dark-color: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        main {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+        
+        .content-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .content-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-height: 150px;
+            resize: vertical;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        select, input[type="range"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .flex-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .flex-group > div {
+            flex: 1;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .audio-player {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .status.success {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: var(--text-color);
+            display: block;
+        }
+        
+        .status.error {
+            background-color: rgba(239, 35, 60, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: var(--text-color);
+            display: block;
+        }
+        
+        .voice-info {
+            background-color: rgba(248, 249, 250, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .voice-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .voice-info p {
+            margin-bottom: 10px;
+        }
+        
+        .voice-info strong {
+            color: var(--text-color);
+        }
+        
+        aside {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        .ad-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ad-container p {
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .features-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .features-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .features-list {
+            list-style: none;
+        }
+        
+        .features-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .features-list i {
+            color: var(--primary-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        .footer-column h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-column a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #adb5bd;
+        }
+
+        /* New Styles for Enhanced Features */
+        .voice-controls {
+            background-color: rgba(67, 97, 238, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .file-upload-btn:hover {
+            background-color: rgba(67, 97, 238, 0.2);
+        }
+
+        #fileName {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .voice-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .voice-card {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(67, 97, 238, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-card:hover {
+            background-color: rgba(67, 97, 238, 0.2);
+        }
+
+        .voice-card.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .preview-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .voice-card.active .preview-btn {
+            color: white;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            nav ul {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            main {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .flex-group {
+                flex-direction: column;
+            }
+
+            .voice-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 8px;
+            padding: 10px 0;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            color: var(--primary-color);
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown:hover .dropbtn {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+
+        /* Dark mode specific styles */
+        .dark-mode .dropdown-content {
+            background-color: #2d2d2d;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .dark-mode .dropdown-content a {
+            color: #f8f9fa;
+        }
+
+        .dark-mode .dropdown-content a:hover {
+            background-color: #3d3d3d;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animated {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-microphone-alt"></i>
+                <h1>SKY <span>TTS</span></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    
+                    <li class="nav-item dropdown">
+                        <a href="#" class="dropbtn">Tools <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="#">Text to Speech</a>
+                            <a href="#">Speech to Text</a>
+                            <a href="#">Audio Cutter</a>
+                            <a href="#">Audio Joiner</a>
+                            <a href="#">Audio Converter</a>
+                            <a href="#">Voice Changer</a>
+                        </div>
+                    </li>
+                    
+                    <li><a href="https://www.skyinfinitetech.com" target="_blank">Blogs</a></li>
+                    
+                    <li class="nav-item dropdown">
+                        <a href="#" class="dropbtn">About <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <div style="padding: 15px; max-width: 350px;">
+                                <p>🌍 Shape Your Future with AI & Infinite Knowledge...!!</p>
+                                <p>Welcome to SKY AI - your gateway to advanced AI content creation tools that transform your ideas into reality.</p>
+                                <p>🌐 Want to Generate Text-to-Voice, Images & Videos? <a href="http://www.ai.skyinfinitetech.com" target="_blank" style="color: var(--primary-color);">http://www.ai.skyinfinitetech.com</a></p>
+                                <p>📚 Read In-Depth Tech & Self-Improvement Blogs <a href="http://www.skyinfinitetech.com" target="_blank" style="color: var(--primary-color);">http://www.skyinfinitetech.com</a></p>
+                                <p>▶ Watch Life-Changing Videos on YouTube <a href="https://www.youtube.com/@SkyInfinite-Learning" target="_blank" style="color: var(--primary-color);">https://www.youtube.com/@SkyInfinite-Learning</a></p>
+                                <p>🔥 Transform Your Skills, Business & Productivity - Join Us Today! 🔥</p>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a href="#" class="dropbtn">Account <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="#"><i class="fab fa-google"></i> Sign in with Google</a>
+                            <a href="#"><i class="fab fa-github"></i> Sign in with GitHub</a>
+                            <a href="#"><i class="fas fa-user-plus"></i> Create Account</a>
+                            <a href="#"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        </div>
+                    </li>
+                    
+                    <li><a href="#">Pricing</a></li>
+                    
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <main>
+            <div class="main-content">
+                <div class="content-card animated">
+                    <h2>Text to Speech Converter</h2>
+                    
+                    <div class="form-group file-upload">
+                        <label for="text">Enter your text or upload file:</label>
+                        <textarea id="text" placeholder="Type or paste your text here to convert it to speech..."></textarea>
+                        <div>
+                            <input type="file" id="fileUpload" accept=".txt,.docx" style="display: none;">
+                            <label for="fileUpload" class="file-upload-btn">
+                                <i class="fas fa-file-upload"></i> Choose File
+                            </label>
+                            <span id="fileName">No file selected</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-group">
+                        <div class="form-group">
+                            <label for="language">Language:</label>
+                            <select id="language" onchange="updateVoices()">
+                                <option value="">Select Language</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="voice">Voice:</label>
+                            <select id="voice">
+                                <option value="">Select Voice</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="voice-controls">
+                        <h3>Voice Customization</h3>
+                        <div class="form-group">
+                            <label for="speed">Speed: <span id="speedValue" class="range-value">1.0x</span></label>
+                            <div class="range-container">
+                                <span>0.5x</span>
+                                <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('speedValue').textContent=this.value+'x'">
+                                <span>2.0x</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pitch">Pitch: <span id="pitchValue" class="range-value">1.0x</span></label>
+                            <div class="range-container">
+                                <span>0.5x</span>
+                                <input type="range" id="pitch" min="0.5" max="1.5" step="0.1" value="1" oninput="document.getElementById('pitchValue').textContent=this.value+'x'">
+                                <span>1.5x</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="use_bark">
+                        <label for="use_bark">Use Offline TTS (Bark)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="use_ssml">
+                        <label for="use_ssml">Use SSML (Advanced Markup)</label>
+                    </div>
+                    
+                    <button class="btn btn-block" onclick="generateTTS()">
+                        <i class="fas fa-play"></i> Generate Speech
+                    </button>
+                    
+                    <div id="status" class="status"></div>
+                    
+                    <audio id="audioPlayer" class="audio-player" controls style="display: none;"></audio>
+                    
+                    <button class="btn btn-outline btn-block" onclick="playPreview()" id="previewBtn" disabled>
+                        <i class="fas fa-headphones"></i> Preview Voice
+                    </button>
+                    
+                    <div id="voiceInfo" class="voice-info" style="display: none;">
+                        <h3>Voice Details</h3>
+                        <p id="voiceDescription"></p>
+                        <p><strong>Style:</strong> <span id="voiceStyle"></span></p>
+                        <p><strong>Best for:</strong> <span id="voiceUseCases"></span></p>
+                        <p><strong>Age Range:</strong> <span id="voiceAge"></span></p>
+                        <p><strong>Mood:</strong> <span id="voiceMood"></span></p>
+                    </div>
+                </div>
+                
+                <div class="content-card animated delay-1">
+                    <h2>How to use SKY TTS</h2>
+                    <ol style="padding-left: 20px; margin-top: 15px;">
+                        <li style="margin-bottom: 10px;">Enter your text in the input box or upload a text file</li>
+                        <li style="margin-bottom: 10px;">Select your preferred language</li>
+                        <li style="margin-bottom: 10px;">Choose a voice from the available options</li>
+                        <li style="margin-bottom: 10px;">Customize speed and pitch if needed</li>
+                        <li style="margin-bottom: 10px;">Click "Generate Speech" to convert</li>
+                        <li style="margin-bottom: 10px;">Listen to the result and download if needed</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <aside>
+                <div class="ad-container animated delay-2">
+                    <p>Advertisement</p>
+                    <div style="width: 300px; height: 250px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center;">
+                        <p>Ad Space</p>
+                    </div>
+                </div>
+                
+                <div class="features-card animated delay-3">
+                    <h3>Why Choose SKY TTS?</h3>
+                    <ul class="features-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Multiple language support</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Natural sounding voices</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Online & offline options</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Voice customization</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>File upload support</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="features-card animated delay-3">
+                    <h3>Voice Gallery</h3>
+                    <div class="voice-gallery" id="voiceGallery">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>SKY TTS</h3>
+                    <p>Professional text-to-speech conversion for all your needs. Convert any text to natural sounding speech instantly.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.youtube.com/@SkyInfinite-Learning" target="_blank"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Tools</h3>
+                    <ul>
+                        <li><a href="#">Text to Speech</a></li>
+                        <li><a href="#">Speech to Text</a></li>
+                        <li><a href="#">Audio Cutter</a></li>
+                        <li><a href="#">Audio Joiner</a></li>
+                        <li><a href="#">Audio Converter</a></li>
+                        <li><a href="#">Voice Changer</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="https://www.skyinfinitetech.com" target="_blank">Blogs</a></li>
+                        <li><a href="http://www.ai.skyinfinitetech.com" target="_blank">AI Tools</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 SKY TTS. All rights reserved. | <a href="#" style="color: #adb5bd;">Terms of Service</a> | <a href="#" style="color: #adb5bd;">Privacy Policy</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </div>
+
+    <script>
+        let voicesData = {};
+        let currentVoice = null;
+        
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('darkModeIcon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkModeIcon').classList.remove('fa-moon');
+            document.getElementById('darkModeIcon').classList.add('fa-sun');
+        }
+
+        // File upload handler
+        document.getElementById('fileUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('fileName').textContent = file.name;
+            
+            if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('text').value = e.target.result;
+                };
+                reader.readAsText(file);
+            } else {
+                showStatus('Only .txt files are currently supported', 'error');
+            }
+        });
+
+        // Load languages and voices
+        async function loadVoices() {
+            try {
+                const response = await fetch('/api/voices');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    voicesData = data.voices;
+                    
+                    // Populate languages
+                    const languageSelect = document.getElementById('language');
+                    data.languages.forEach(lang => {
+                        const option = document.createElement('option');
+                        option.value = lang;
+                        option.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
+                        languageSelect.appendChild(option);
+                    });
+
+                    // Populate voice gallery
+                    populateVoiceGallery(data.voices);
+                } else {
+                    showStatus('Error loading voices: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showStatus('Failed to load voices: ' + error.message, 'error');
+            }
+        }
+
+        // Populate voice gallery
+        function populateVoiceGallery(voices) {
+            const gallery = document.getElementById('voiceGallery');
+            gallery.innerHTML = '';
+
+            // Get first language's voices for demo
+            const firstLang = Object.keys(voices)[0];
+            const demoVoices = voices[firstLang].slice(0, 6); // Show first 6 voices
+
+            demoVoices.forEach(voice => {
+                const card = document.createElement('div');
+                card.className = 'voice-card';
+                card.innerHTML = `
+                    <button class="preview-btn" onclick="playGalleryPreview('${voice.id}', event)"><i class="fas fa-play"></i></button>
+                    <h4>${voice.name}</h4>
+                    <small>${voice.gender || 'Neutral'}</small>
+                `;
+                gallery.appendChild(card);
+            });
+        }
+
+        // Play preview from gallery
+        function playGalleryPreview(voiceId, e) {
+            e.stopPropagation();
+            // Find voice data
+            for (const lang in voicesData) {
+                const voice = voicesData[lang].find(v => v.id === voiceId);
+                if (voice) {
+                    currentVoice = voice;
+                    playPreview();
+                    return;
+                }
+            }
+            showStatus('Voice preview not available', 'error');
+        }
+        
+        // Update voices dropdown based on selected language
+        function updateVoices() {
+            const language = document.getElementById('language').value;
+            const voiceSelect = document.getElementById('voice');
+            
+            // Clear existing options
+            voiceSelect.innerHTML = '<option value="">Select Voice</option>';
+            document.getElementById('previewBtn').disabled = true;
+            document.getElementById('voiceInfo').style.display = 'none';
+            currentVoice = null;
+            
+            if (!language) return;
+            
+            // Add voices for selected language
+            const voices = voicesData[language] || [];
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.id;
+                option.textContent = voice.name;
+                option.dataset.voice = JSON.stringify(voice);
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        // Handle voice selection change
+        document.getElementById('voice').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                currentVoice = JSON.parse(selectedOption.dataset.voice);
+                document.getElementById('previewBtn').disabled = false;
+                updateVoiceInfo(currentVoice);
+            } else {
+                document.getElementById('previewBtn').disabled = true;
+                document.getElementById('voiceInfo').style.display = 'none';
+                currentVoice = null;
+            }
+        });
+        
+        // Update voice information display
+        function updateVoiceInfo(voice) {
+            const voiceInfo = document.getElementById('voiceInfo');
+            document.getElementById('voiceDescription').textContent = voice.description || 'No description available';
+            document.getElementById('voiceStyle').textContent = voice.style || 'Not specified';
+            document.getElementById('voiceUseCases').textContent = voice.use_cases ? voice.use_cases.join(', ') : 'General purpose';
+            document.getElementById('voiceAge').textContent = voice.age_range || 'Not specified';
+            document.getElementById('voiceMood').textContent = voice.mood || 'Not specified';
+            voiceInfo.style.display = 'block';
+        }
+        
+        // Play voice preview
+        async function playPreview() {
+            if (!currentVoice) return;
+            
+            showStatus('Loading preview...');
+            
+            try {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = `/api/voice-preview/${currentVoice.id}`;
+                audioPlayer.style.display = 'block';
+                audioPlayer.play();
+                showStatus('Playing preview...', 'success');
+            } catch (error) {
+                showStatus('Failed to play preview: ' + error.message, 'error');
+            }
+        }
+        
+        // Generate TTS
+        async function generateTTS() {
+            const text = document.getElementById('text').value.trim();
+            const language = document.getElementById('language').value;
+            const voice = document.getElementById('voice').value;
+            const useBark = document.getElementById('use_bark').checked;
+            const useSSML = document.getElementById('use_ssml').checked;
+            const speed = document.getElementById('speed').value;
+            const pitch = document.getElementById('pitch').value;
+            
+            if (!text) {
+                showStatus('Please enter some text', 'error');
+                return;
+            }
+            
+            if (!language || !voice) {
+                showStatus('Please select a language and voice', 'error');
+                return;
+            }
+            
+            showStatus('Generating speech...');
+            
+            try {
+                const audioPlayer = document.getElementById('audioPlayer');
+                
+                // Determine which API to use
+                let apiUrl, payload;
+                if (useBark) {
+                    apiUrl = '/api/bark_tts';
+                    payload = { 
+                        text,
+                        speed,
+                        pitch 
+                    };
+                } else {
+                    apiUrl = '/api/generate_tts';
+                    payload = { 
+                        text, 
+                        language, 
+                        voice_id: voice,
+                        use_bark: useBark,
+                        use_ssml: useSSML,
+                        speed,
+                        pitch
+                    };
+                }
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    audioPlayer.src = data.audio_url;
+                    audioPlayer.style.display = 'block';
+                    audioPlayer.play();
+                    showStatus('Speech generated successfully!', 'success');
+                } else {
+                    showStatus('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showStatus('Failed to generate speech: ' + error.message, 'error');
+            }
+        }
+        
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + (type || '');
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Initialize on page load
+        window.onload = loadVoices;
+
+        // Add click handlers for new dropdowns
+        document.querySelectorAll('.dropdown-content a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if(this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
