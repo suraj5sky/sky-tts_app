@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, render_template
+from flask import Flask, request, jsonify, send_from_directory, render_template, session, redirect, url_for
 from flask_cors import CORS
 import os
 import logging
@@ -6,11 +6,23 @@ from datetime import datetime
 import edge_tts
 import asyncio
 from gtts import gTTS
-from bark_tts.generate_bark import generate_bark_tts
+# from bark_tts.generate_bark import generate_bark_tts  # COMMENTED OUT FOR NOW																			   
 from pathlib import Path
 import tempfile
 import torch
 from werkzeug.utils import secure_filename
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
+import secrets
+from functools import wraps
+import stripe
+import uuid
+import json
+import psutil
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_session import Session
+import hmac
+import re
 
 # Configure logging
 logging.basicConfig(
@@ -20,10 +32,85 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Configuration
+class Config:
+    SECRET_KEY = secrets.token_hex(32)
+    STRIPE_PUBLIC_KEY = 'pk_test_your_stripe_public_key'
+    STRIPE_SECRET_KEY = 'sk_test_your_stripe_secret_key'
+    STRIPE_WEBHOOK_SECRET = 'whsec_your_webhook_secret'
+    FREE_CHAR_LIMIT = 1000
+    PRO_CHAR_LIMIT = 5000
+    FREE_DAILY_CONVERSIONS = 5
+
+# Initialize Flask app
+app = Flask(__name__)
+app.config.from_object(Config)
+CORS(app, supports_credentials=True, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:5000", "https://yourdomain.com"],
+        "methods": ["GET", "POST", "PUT", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Type"],
+        "supports_credentials": True
+    }
+})
+
+# Required configuration for Flask-Session
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './flask_session'
+app.config['SECRET_KEY'] = os.urandom(24).hex()  # Generate a secure secret key
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour session lifetime
+
+# Initialize Flask-Session
+Session(app)
+
+# Example user database setup
+users_db = {}
+subscriptions_db = {}
+
+# Required helper functions
+def validate_email(email):
+    """Basic email validation"""
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+def secure_compare(a, b):
+    """Timing-attack safe string comparison"""
+    return hmac.compare_digest(a.encode(), b.encode())
+
+# Initialize Stripe
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
+
+# Initialize AWS Polly client
+try:
+    polly_client = boto3.client('polly')
+    logger.info("Amazon Polly client initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize Amazon Polly client: {str(e)}")
+    polly_client = None
+
+# Database simulation (in production, use a real database)
+users_db = {}
+subscriptions_db = {}
+usage_db = {}
+
+# File system configuration
+AUDIO_FOLDER = 'static/audio'
+VOICE_PREVIEWS = 'static/voice_previews'
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'txt'}
+
+app.config['AUDIO_FOLDER'] = AUDIO_FOLDER
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
+
+# Create directories
+for folder in [AUDIO_FOLDER, VOICE_PREVIEWS, UPLOAD_FOLDER]:
+    os.makedirs(folder, exist_ok=True)
+
 # Complete Voice Configuration (unchanged from your original)
 LANGUAGES = ["hindi", "english", "spanish", "french", "arabic", "german", "japanese", 
              "bengali", "gujarati", "tamil", "punjabi", "kannada"]
-
+             
 VOICES = {
     "hindi": [
 	    {
@@ -39,6 +126,31 @@ VOICES = {
             "age_range": "30-45",
             "mood": "professional"
         },
+        # Amazon Polly Hindi Voices
+        {
+            "id": "Aditi",
+            "name": "Aditi (Female)",
+            "gender": "female",
+            "service": "polly",
+            "style": "neutral",
+            "use_cases": ["general", "customer_service"],
+            "description": "High quality Hindi female voice from Amazon Polly",
+            "sample_text": "नमस्ते, मैं आदिति हूँ। आप कैसे हैं?",
+            "age_range": "25-35",
+            "mood": "neutral"
+        },
+        {
+            "id": "Kajal",
+            "name": "Kajal (Female)",
+            "gender": "female",
+            "service": "polly",
+            "style": "expressive",
+            "use_cases": ["storytelling", "entertainment"],
+            "description": "Expressive Hindi female voice from Amazon Polly",
+            "sample_text": "आज का मौसम बहुत सुहावना है!",
+            "age_range": "20-30",
+            "mood": "cheerful"
+        },
         {
             "id": "hi-IN-SwaraNeural",
             "name": "Riya (Female)",
@@ -51,19 +163,6 @@ VOICES = {
             "sample_text": "आपका स्वागत है! मैं रिया आपके लिए कहानी सुनाउंगी...",
             "age_range": "20-35",
             "mood": "friendly"
-        },
-        {
-            "id": "hi-IN-KedarNeural",
-            "name": "Roohi (Female)",
-            "gender": "female",
-            "service": "edge",
-            "coqui_fallback": "hi-cv-vits",
-            "style": "serious",
-            "use_cases": ["documentaries", "education"],
-            "description": "Clear and precise voice for instructional content",
-            "sample_text": "आज हम विज्ञान के एक महत्वपूर्ण सिद्धांत पर चर्चा करेंगे...",
-            "age_range": "35-50",
-            "mood": "professional"
         },
         {
             "id": "hi-IN-MadhurNeural",
@@ -145,18 +244,30 @@ VOICES = {
         }
     ],
     "english": [
+        # Amazon Polly English Voices
         {
-            "id": "en-US-DavisNeural",
-            "name": "Sophia (Female)",
+            "id": "Joanna",
+            "name": "Joanna (Female)",
             "gender": "female",
-            "service": "edge",
-            "coqui_fallback": "en-ljspeech-tacotron2-DDC",
-            "style": "professional",
+            "service": "polly",
+            "style": "neutral",
+            "use_cases": ["general", "customer_service"],
+            "description": "High quality English female voice from Amazon Polly",
+            "sample_text": "Hello, I'm Joanna. How can I help you today?",
+            "age_range": "25-35",
+            "mood": "neutral"
+        },
+        {
+            "id": "Matthew",
+            "name": "Matthew (Male)",
+            "gender": "male",
+            "service": "polly",
+            "style": "neutral",
             "use_cases": ["business", "presentations"],
-            "description": "Clear and articulate voice for professional content",
-            "sample_text": "Hello everyone. Let's begin today's presentation.",
+            "description": "High quality English male voice from Amazon Polly",
+            "sample_text": "Good morning! This is Matthew speaking.",
             "age_range": "30-45",
-            "mood": "authoritative"
+            "mood": "professional"
         },
         {
             "id": "en-IN-PrabhatNeural",
@@ -170,6 +281,19 @@ VOICES = {
             "sample_text": "Hello! How can I help you today?",
             "age_range": "25-35",
             "mood": "warm"
+        },
+        {
+            "id": "hi-IN-SwaraNeural",
+            "name": "Niku (Female)",
+            "gender": "female",
+            "service": "edge",
+            "coqui_fallback": "hi-cv-vits--female",
+            "style": "cheerful",
+            "use_cases": ["storytelling", "customer_service"],
+            "description": "Warm and friendly voice ideal for conversational apps",
+            "sample_text": "Hello, This is a Test...",
+            "age_range": "20-35",
+            "mood": "friendly"
         },
         {
             "id": "en-IN-NeerjaNeural",
@@ -250,19 +374,6 @@ VOICES = {
             "mood": "News, Novel"
         },
         {
-            "id": "en-US-RogerNeural",
-            "name": "Shobhit (Male)",
-            "gender": "male",
-            "service": "edge",
-            "coqui_fallback": "en-vctk-vits",
-            "style": "Conversation",
-            "use_cases": ["customer_service", "education"],
-            "description": "Conversation, Copilot  Warm, Confident, Authentic, Honest",
-            "sample_text": "Hello! How can I help you today?",
-            "age_range": "25-35",
-            "mood": "News, Novel"
-        },
-        {
             "id": "en-US-JennyNeural",
             "name": "Supriya (Female)",
             "gender": "female",
@@ -276,7 +387,7 @@ VOICES = {
             "mood": "warm"
         },    
         {
-            "id": "en-IN-PriyaNeural",
+            "id": "en-US-AnaNeural",
             "name": "Priya (Female)",
             "gender": "female",
             "service": "edge",
@@ -315,7 +426,7 @@ VOICES = {
             "mood": "playful"
         },
         {
-            "id": "en-AU-ElsieNeural",
+            "id": "en-US-AvaMultilingualNeural",
             "name": "Nancy (Female)",
             "gender": "female",
             "service": "edge",
@@ -354,7 +465,7 @@ VOICES = {
            "mood": "calm"
         },
         {
-            "id": "en-US-NancyNeural",
+            "id": "en-US-EmmaMultilingualNeural",
             "name": "Tanya (Female)",
             "gender": "female",
             "service": "edge",
@@ -380,6 +491,19 @@ VOICES = {
             "sample_text": "Buenos días. Comencemos nuestra reunión.",
             "age_range": "35-50",
             "mood": "professional"
+        },
+        # Amazon Polly Spanish Voice
+        {
+            "id": "Lupe",
+            "name": "Lupe (Female) - Polly",
+            "gender": "female",
+            "service": "polly",
+            "style": "neutral",
+            "use_cases": ["general", "customer_service"],
+            "description": "High quality Spanish female voice from Amazon Polly",
+            "sample_text": "¡Hola! ¿Cómo estás?",
+            "age_range": "25-35",
+            "mood": "neutral"
         },
         {
             "id": "es-ES-ElviraNeural",
@@ -612,43 +736,9 @@ GTTS_LANG_CODES = {
     "kannada": "kn"
 }
 
-# Flask app setup
-app = Flask(__name__)
-CORS(app)
-
-# Modern Flask initialization
-@app.before_request
-def initialize_services():
-    if not hasattr(app, 'services_initialized'):
-        # Initialize services once
-        if BARK_INITIALIZED:
-            logging.info("Bark TTS initialized successfully")
-        else:
-            logging.warning("Bark TTS initialization failed - offline mode limited")
-        app.services_initialized = True
-        
-# Initialize Bark when app starts
-with app.app_context():
-    from bark_tts.generate_bark import BARK_INITIALIZED
-    if not BARK_INITIALIZED:
-        logging.error("Failed to initialize Bark TTS - offline functionality will be limited")							 
-# File system configuration
-AUDIO_FOLDER = 'static/audio'
-VOICE_PREVIEWS = 'static/voice_previews'
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'txt'}
-
-app.config['AUDIO_FOLDER'] = AUDIO_FOLDER
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
-
-# Create directories
-for folder in [AUDIO_FOLDER, VOICE_PREVIEWS, UPLOAD_FOLDER]:
-    os.makedirs(folder, exist_ok=True)
-
+# Helper functions
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def save_audio_file(audio_data, voice_id, extension="wav"):
     try:
@@ -670,52 +760,40 @@ def save_audio_file(audio_data, voice_id, extension="wav"):
 
 async def async_generate_with_edge(text, voice_id, speed=1.0, pitch=1.0, ssml=False):
     try:
-        # Validate parameters
         speed = max(0.5, min(2.0, float(speed)))
         pitch = max(0.9, min(1.1, float(pitch)))
         
-        # Calculate rate adjustment (Edge-TTS expects string like "+20%" or "-10%")
         rate = None
         if speed != 1.0 or pitch != 1.0:
-            # Convert speed to percentage (-50% to +100%)
             rate = f"{int((speed - 1) * 100)}%"
             if speed > 1.0:
-                rate = f"+{rate}"  # Add + for positive values
-            
-            # Add subtle pitch adjustment (-5% to +5%)
+                rate = f"+{rate}"
             pitch_adjust = int((pitch - 1) * 5)
             if pitch_adjust != 0:
-                rate += f"{pitch_adjust:+}%"  # Format with sign
+                rate += f"{pitch_adjust:+}%"
 
-        # Generate SSML if needed
         content = f"<speak>{text}</speak>" if ssml else text
 
-        # Create communicate object with proper rate format
         communicate = edge_tts.Communicate(
             text=content,
             voice=voice_id,
-            rate=rate if rate else "+0%"  # Edge-TTS requires string rate
+            rate=rate if rate else "+0%"
         )
 
-        # Save to temp file
         temp_file = os.path.join(
             tempfile.gettempdir(),
             f"edge_{datetime.now().strftime('%Y%m%d%H%M%S')}.mp3"
         )
         await communicate.save(temp_file)
         return temp_file
-
     except Exception as e:
         logger.error(f"Edge-TTS error: {str(e)}")
         return None
 
-
 def generate_with_edge(text, voice_id, speed=1.0, pitch=1.0, ssml=False):
     try:
-        # Create new event loop for async call
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        
         temp_file = loop.run_until_complete(
             async_generate_with_edge(text, voice_id, speed, pitch, ssml)
         )
@@ -748,40 +826,407 @@ def generate_with_gtts(text, lang='en'):
         logger.error(f"gTTS error: {str(e)}")
         return None
 
+def generate_with_polly(text, voice_id, speed=1.0, pitch=1.0, ssml=False):
+    try:
+        if not polly_client:
+            raise Exception("Amazon Polly client not initialized")
+        
+        speed_percentage = f"{int(speed * 100)}%"
+        pitch_semitones = str(int((pitch - 1.0) * 12))
+        
+        ssml_text = f"""
+        <speak>
+            <prosody rate="{speed_percentage}" pitch="{pitch_semitones}st">
+                {text}
+            </prosody>
+        </speak>
+        """ if ssml else text
+
+        response = polly_client.synthesize_speech(
+            Text=ssml_text if ssml else text,
+            OutputFormat='mp3',
+            VoiceId=voice_id,
+            TextType='ssml' if ssml else 'text'
+        )
+
+        return response['AudioStream'].read()
+    except (BotoCoreError, ClientError) as error:
+        logger.error(f"Amazon Polly error: {str(error)}")
+        return None
+    except Exception as e:
+        logger.error(f"Error in Polly generation: {str(e)}")
+        return None
+
+# Authentication decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return jsonify({'status': 'error', 'message': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Routes
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html')    
+
+@app.route('/api/auth/status', methods=['GET'])
+def auth_status():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        user = users_db.get(user_id)
+        if user:
+            return jsonify({
+                'status': 'success',
+                'authenticated': True,
+                'user': {
+                    'id': user['id'],
+                    'email': user['email'],
+                    'name': user['name'],
+                    'subscription': subscriptions_db.get(user['id'], 'free')
+                }
+            })
+    return jsonify({'status': 'success', 'authenticated': False})
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    try:
+        if not request.is_json:
+            return jsonify({'status': 'error', 'message': 'Content-Type must be application/json'}), 400
+
+        data = request.get_json()
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+
+        # Validation
+        if not email or not password:
+            return jsonify({'status': 'error', 'message': 'Email and password are required'}), 400
+
+        # Find user
+        user = None
+        for u in users_db.values():
+            if secure_compare(u['email'], email):
+                user = u
+                break
+
+        # Verify password
+        if not user or not check_password_hash(user['password_hash'], password):
+            return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
+
+        # Create session
+        session.clear()
+        session['user_id'] = user['id']
+        session['logged_in'] = True
+
+        return jsonify({
+            'status': 'success',
+            'user': {
+                'id': user['id'],
+                'email': user['email'],
+                'name': user['name'],
+                'subscription': subscriptions_db.get(user['id'], 'free')
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# Helper functions needed:
+def validate_email(email):
+    """Basic email validation"""
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+def secure_compare(a, b):
+    """Timing-attack safe string comparison"""
+    return hmac.compare_digest(a.encode(), b.encode())
+
+# You'll need to add these at startup:
+from werkzeug.security import generate_password_hash, check_password_hash
+    
+@app.route('/api/auth/profile')
+@login_required
+def get_profile():
+    user_id = session['user_id']
+    user = users_db.get(user_id)
+    if not user:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+    
+    return jsonify({
+        'status': 'success',
+        'profile': {
+            'email': user['email'],
+            'name': user['name'],
+            'created_at': user['created_at'],
+            'subscription': subscriptions_db.get(user_id, 'free'),
+            'chars_used': usage_db.get(user_id, {}).get('chars_used', 0),
+            'daily_conversions': usage_db.get(user_id, {}).get('conversions_today', 0)
+        }
+    })    
+
+@app.route('/api/auth/signup', methods=['POST'])
+def signup():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+        name = data.get('name', '').strip()
+
+        # Validation
+        if not all([email, password, name]):
+            return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+        if not validate_email(email):
+            return jsonify({'status': 'error', 'message': 'Invalid email format'}), 400
+
+        if len(password) < 8:
+            return jsonify({'status': 'error', 'message': 'Password must be at least 8 characters'}), 400
+
+        # Check if user exists
+        if any(u['email'].lower() == email.lower() for u in users_db.values()):
+            return jsonify({'status': 'error', 'message': 'Email already registered'}), 400
+
+        # Create user with hashed password
+        user_id = str(uuid.uuid4())
+        users_db[user_id] = {
+            'id': user_id,
+            'email': email,
+            'name': name,
+            'password_hash': generate_password_hash(password),
+            'created_at': datetime.utcnow().isoformat()
+        }
+        subscriptions_db[user_id] = 'free'
+
+        return jsonify({
+            'status': 'success',
+            'user': {
+                'id': user_id,
+                'email': email,
+                'name': name,
+                'created_at': users_db[user_id]['created_at'],
+                'subscription': 'free'
+            }
+        }), 201
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'status': 'success'})
+
+@app.route('/api/subscriptions/plans')
+def get_subscription_plans():
+    return jsonify({
+        'status': 'success',
+        'plans': {
+            'free': {
+                'name': 'Free',
+                'price': 0,
+                'features': [
+                    f'Up to {app.config["FREE_CHAR_LIMIT"]} characters per conversion',
+                    f'Up to {app.config["FREE_DAILY_CONVERSIONS"]} conversions per day',
+                    'Basic voices',
+                    'Email support'
+                ]
+            },
+            'pro': {
+                'name': 'Pro',
+                'price': 9.99,
+                'features': [
+                    f'Up to {app.config["PRO_CHAR_LIMIT"]} characters per conversion',
+                    'Unlimited conversions',
+                    'Premium voices',
+                    'Priority support',
+                    'Commercial license'
+                ]
+            },
+            'enterprise': {
+                'name': 'Enterprise',
+                'price': 29.99,
+                'features': [
+                    'Unlimited characters',
+                    'Unlimited conversions',
+                    'All premium voices',
+                    '24/7 priority support',
+                    'API access',
+                    'Commercial license'
+                ]
+            }
+        }
+    })
+
+@app.route('/api/subscriptions/create-checkout-session', methods=['POST'])
+@login_required
+def create_checkout_session():
+    data = request.get_json()
+    plan = data.get('plan')
+    
+    if plan not in ['pro', 'enterprise']:
+        return jsonify({'status': 'error', 'message': 'Invalid plan'}), 400
+    
+    price_id = {
+        'pro': 'price_your_pro_plan_id',
+        'enterprise': 'price_your_enterprise_plan_id'
+    }.get(plan)
+    
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': price_id,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('payment_canceled', _external=True),
+            client_reference_id=session['user_id']
+        )
+        return jsonify({'status': 'success', 'sessionId': checkout_session['id']})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/payment/success')
+def payment_success():
+    return render_template('payment_success.html')
+
+@app.route('/payment/canceled')
+def payment_canceled():
+    return render_template('payment_canceled.html')
+
+@app.route('/api/subscriptions/webhook', methods=['POST'])
+def stripe_webhook():
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+    
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, app.config['STRIPE_WEBHOOK_SECRET']
+        )
+    except ValueError as e:
+        return jsonify({'status': 'error', 'message': 'Invalid payload'}), 400
+    except stripe.error.SignatureVerificationError as e:
+        return jsonify({'status': 'error', 'message': 'Invalid signature'}), 400
+    
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        user_id = session['client_reference_id']
+        subscriptions_db[user_id] = 'pro' if 'pro' in session['display_items'][0]['plan']['id'] else 'enterprise'
+    
+    return jsonify({'status': 'success'})
 
 @app.route('/api/voices', methods=['GET'])
 def get_voices():
     try:
-        # Enhanced response with preview URLs
-        voices_with_previews = {}
-        for lang, voice_list in VOICES.items():
-            voices_with_previews[lang] = []
-            for voice in voice_list:
-                voice_data = voice.copy()
-                if voice_data.get('id'):
-                    voice_data['preview_url'] = f"/api/voice-preview/{voice_data['id']}"
-                voices_with_previews[lang].append(voice_data)
-        
-        return jsonify({
+        response = {
             'status': 'success',
-            'languages': LANGUAGES,
-            'voices': voices_with_previews,
-            'max_char_limit': 5000,
-            'supports': {
-                'speed_control': True,
-                'pitch_control': True,
-                'ssml': True,
-                'file_upload': True
-            }
-        })
+            'languages': list(VOICES.keys()),
+            'voices': {}
+        }
+        
+        for lang, voices in VOICES.items():
+            response['voices'][lang] = []
+            for voice in voices:
+                response['voices'][lang].append({
+                    'id': voice.get('id', voice.get('name', '')),
+                    'name': voice.get('name', 'Unnamed Voice'),
+                    'gender': voice.get('gender', 'unknown'),
+                    'service': voice.get('service', 'edge'),
+                    'style': voice.get('style', 'neutral'),
+                    'description': voice.get('description', ''),
+                    'sample_text': voice.get('sample_text', ''),
+                    'age_range': voice.get('age_range', ''),
+                    'mood': voice.get('mood', ''),
+                    'use_cases': voice.get('use_cases', [])
+                })
+        
+        return jsonify(response)
     except Exception as e:
-        logger.error(f"Error getting voices: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+        
+# 1. First define the admin_required decorator
+def admin_required(f):
+    """Restrict access to admin users only"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_id'):
+            return jsonify({'status': 'error', 'message': 'Login required'}), 401
+            
+        user = users_db.get(session['user_id'])
+        if not user or not user.get('is_admin'):
+            return jsonify({'status': 'error', 'message': 'Admin privileges required'}), 403
+            
+        return f(*args, **kwargs)
+    return decorated_function
+
+# 2. Then define your admin routes with unique endpoint names
+@app.route('/api/admin/voice-config', methods=['GET'])
+@admin_required
+def admin_voice_config():
+    """Get voice configuration details"""
+    return jsonify({
+        'status': 'success',
+        'languages': sorted(VOICES.keys()),
+        'voice_counts': {lang: len(voices) for lang, voices in VOICES.items()},
+        'services': {
+            'edge_tts': any(v.get('service') == 'edge' for voices in VOICES.values() for v in voices),
+            'polly': any(v.get('service') == 'polly' for voices in VOICES.values() for v in voices),
+            'gtts': bool(GTTS_LANG_CODES)
+        }
+    })
+
+@app.route('/api/admin/system-status', methods=['GET'])
+@admin_required
+def admin_system_status():
+    """Get system health metrics"""
+    if not hasattr(app, 'start_time'):
+        app.start_time = datetime.utcnow()
+    
+    return jsonify({
+        'status': 'success',
+        'system': {
+            'time': datetime.utcnow().isoformat(),
+            'cpu': psutil.cpu_percent(),
+            'memory': psutil.virtual_memory().percent,
+            'disk': psutil.disk_usage('/').percent
+        },
+        'app': {
+            'start_time': app.start_time.isoformat(),
+            'uptime': (datetime.utcnow() - app.start_time).total_seconds(),
+            'config_keys': [k for k in app.config.keys() if not k.startswith('SECRET')]
+        }
+    })
+
+@app.route('/api/admin/auth-status', methods=['GET'])
+@admin_required
+def admin_auth_status():
+    """Get authentication statistics"""
+    return jsonify({
+        'status': 'success',
+        'auth': {
+            'user_id': session.get('user_id'),
+            'logged_in': 'user_id' in session,
+            'session_expiry': app.permanent_session_lifetime.total_seconds() 
+                            if app.permanent_session_lifetime else None
+        },
+        'stats': {
+            'total_users': len(users_db),
+            'active_subscriptions': sum(1 for sub in subscriptions_db.values() if sub != 'free')
+        }
+    })
+
+@app.route('/api/voices/raw-debug')
+def voices_debug():
+    """Return raw voice data exactly as stored in VOICES"""
+    from pprint import pformat
+    return f"<pre>{pformat(VOICES)}</pre>", 200
 
 @app.route('/api/generate_tts', methods=['POST'])
+@login_required
 def generate_tts():
     if not request.is_json:
         return jsonify({'status': 'error', 'message': 'Content-Type must be application/json'}), 400
@@ -790,20 +1235,43 @@ def generate_tts():
     text = data.get('text', '').strip()
     language = data.get('language', '')
     voice_id = data.get('voice_id', '')
-    use_bark = data.get('use_bark', False)
     use_ssml = data.get('use_ssml', False)
-    speed = float(data.get('speed', 1.0))  # Default 1.0 (0.5-2.0)
-    pitch = float(data.get('pitch', 1.0))  # Default 1.0 (0.5-1.5)
+    speed = float(data.get('speed', 1.0))
+    pitch = float(data.get('pitch', 1.0))
     
-    # Validate parameters
     if not text or not language or not voice_id:
         return jsonify({'status': 'error', 'message': 'Text, language and voice_id are required'}), 400
     
-    if len(text) > 5000:
+    user_id = session['user_id']
+    subscription = subscriptions_db.get(user_id, 'free')
+    usage = usage_db.get(user_id, {'chars_used': 0, 'conversions_today': 0, 'last_conversion_date': None})
+    
+    # Check daily conversion limit for free users
+    today = datetime.now().date()
+    if usage['last_conversion_date'] != str(today):
+        usage['conversions_today'] = 0
+        usage['last_conversion_date'] = str(today)
+    
+    if subscription == 'free' and usage['conversions_today'] >= app.config['FREE_DAILY_CONVERSIONS']:
         return jsonify({
-            'status': 'error', 
-            'message': 'Text exceeds 5000 character limit',
-            'max_limit': 5000
+            'status': 'error',
+            'message': f'Free plan limited to {app.config["FREE_DAILY_CONVERSIONS"]} conversions per day',
+            'code': 'conversion_limit_exceeded'
+        }), 429
+    
+    # Check character limit
+    char_limit = {
+        'free': app.config['FREE_CHAR_LIMIT'],
+        'pro': app.config['PRO_CHAR_LIMIT'],
+        'enterprise': None
+    }.get(subscription)
+    
+    if char_limit and len(text) > char_limit:
+        return jsonify({
+            'status': 'error',
+            'message': f'Text exceeds {char_limit} character limit for {subscription} plan',
+            'max_limit': char_limit,
+            'code': 'char_limit_exceeded'
         }), 400
 
     try:
@@ -812,36 +1280,14 @@ def generate_tts():
         if not selected_voice:
             return jsonify({'status': 'error', 'message': 'Invalid voice selection'}), 400
 
-        # Determine service to use
         service = selected_voice.get('service', 'edge')
         audio_data = None
         
-        # Try Bark TTS first if requested
-        if use_bark:
-            output_path = os.path.join(AUDIO_FOLDER, f"bark_{datetime.now().strftime('%Y%m%d%H%M%S')}.wav")
-            try:
-                generate_bark_tts(text, output_path, speed=speed, pitch=pitch)
-                with open(output_path, 'rb') as f:
-                    audio_data = f.read()
-                return jsonify({
-                    'status': 'success',
-                    'audio_url': f"/static/audio/{os.path.basename(output_path)}",
-                    'voice_used': f"Bark TTS ({selected_voice['name']})",
-                    'service': 'bark',
-                    'parameters': {
-                        'speed': speed,
-                        'pitch': pitch,
-                        'ssml': use_ssml
-                    }
-                })
-            except Exception as e:
-                logger.warning(f"Bark TTS failed, falling back: {str(e)}")
-        
-        # Normal TTS flow
-        if service == 'edge' and selected_voice.get('id'):
+        if service == 'polly':
+            audio_data = generate_with_polly(text, selected_voice['id'], speed, pitch, use_ssml)
+        elif service == 'edge' and selected_voice.get('id'):
             audio_data = generate_with_edge(text, selected_voice['id'], speed, pitch, use_ssml)
         
-        # Fallback to gTTS (note: gTTS doesn't support speed/pitch)
         if not audio_data:
             logger.info("Falling back to gTTS")
             lang_code = GTTS_LANG_CODES.get(language, "en")
@@ -852,10 +1298,15 @@ def generate_tts():
         if not audio_data:
             raise Exception("All TTS methods failed")
 
-        extension = "mp3" if service == 'gtts' else "wav"
+        extension = "mp3" if service in ['gtts', 'polly'] else "wav"
         save_result = save_audio_file(audio_data, voice_id, extension)
         if save_result['status'] != 'success':
             raise Exception(save_result['message'])
+
+        # Update usage
+        usage['chars_used'] += len(text)
+        usage['conversions_today'] += 1
+        usage_db[user_id] = usage
 
         response = {
             'status': 'success',
@@ -863,6 +1314,13 @@ def generate_tts():
             'voice_used': selected_voice['name'],
             'language': language,
             'service': service,
+            'usage': {
+                'chars_used': usage['chars_used'],
+                'conversions_today': usage['conversions_today'],
+                'subscription': subscription,
+                'char_limit': char_limit,
+                'conversions_limit': app.config['FREE_DAILY_CONVERSIONS'] if subscription == 'free' else None
+            },
             'parameters': {
                 'speed': speed,
                 'pitch': pitch,
@@ -882,39 +1340,43 @@ def generate_tts():
     except Exception as e:
         logger.error(f"TTS generation error: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-               
 
-@app.route('/api/bark_tts', methods=['POST'])
-def bark_tts():
-    data = request.json
-    text = data.get("text", "")
-    speed = float(data.get("speed", 1.0))
-    pitch = float(data.get("pitch", 1.0))
-    
-    output_path = os.path.join(AUDIO_FOLDER, f"bark_{datetime.now().strftime('%Y%m%d%H%M%S')}.wav")
-    try:
-        generate_bark_tts(text, output_path, speed=speed, pitch=pitch)
-        return jsonify({
-            "status": "success", 
-            "audio_url": f"/static/audio/{os.path.basename(output_path)}",
-            "parameters": {
-                "speed": speed,
-                "pitch": pitch
-            }
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
+# COMMENTED OUT BARK TTS ENDPOINT
+# @app.route('/api/bark_tts', methods=['POST'])
+# def bark_tts():
+#     data = request.json
+#     text = data.get("text", "")
+#     speed = float(data.get("speed", 1.0))
+#     pitch = float(data.get("pitch", 1.0))
+#     
+#     output_path = os.path.join(AUDIO_FOLDER, f"bark_{datetime.now().strftime('%Y%m%d%H%M%S')}.wav")
+#     try:
+#         generate_bark_tts(text, output_path, speed=speed, pitch=pitch)
+#         return jsonify({
+#             "status": "success", 
+#             "audio_url": f"/static/audio/{os.path.basename(output_path)}",
+#             "parameters": {
+#                 "speed": speed,
+#                 "pitch": pitch
+#             }
+#         })
+#     except Exception as e:
+#         return jsonify({"status": "error", "message": str(e)})
+								 
 @app.route('/api/process-file', methods=['POST'])
+@login_required
 def process_file():
-    if 'file' not in request.files:
-        return jsonify({'status': 'error', 'message': 'No file uploaded'}), 400
-    
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'status': 'error', 'message': 'No selected file'}), 400
-    
-    if file and allowed_file(file.filename):
+    try:
+        if 'file' not in request.files:
+            return jsonify({'status': 'error', 'message': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'status': 'error', 'message': 'No selected file'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'status': 'error', 'message': 'Allowed file types: .txt'}), 400
+
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
@@ -930,17 +1392,17 @@ def process_file():
             })
         except Exception as e:
             logger.error(f"File processing error: {str(e)}")
-            return jsonify({'status': 'error', 'message': str(e)}), 500
-    else:
-        return jsonify({
-            'status': 'error',
-            'message': 'Allowed file types: .txt'
-        }), 400
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            return jsonify({'status': 'error', 'message': 'Failed to read file'}), 500
+            
+    except Exception as e:
+        logger.error(f"Unexpected error in file processing: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'An unexpected error occurred'}), 500
 
 @app.route('/api/voice-preview/<voice_id>')
 def voice_preview(voice_id):
     try:
-        # Find voice in configuration
         voice = None
         for lang in VOICES.values():
             for v in lang:
@@ -953,19 +1415,17 @@ def voice_preview(voice_id):
         if not voice:
             return jsonify({'status': 'error', 'message': 'Voice not found'}), 404
 
-        # Check if preview exists
         preview_file = f"{voice_id}_preview.mp3"
         preview_path = os.path.join(VOICE_PREVIEWS, preview_file)
         
         if not os.path.exists(preview_path):
-            # Generate preview if missing
             sample_text = voice.get('sample_text', 'Hello, this is a sample')
             
-            # Try Edge TTS first
-            audio_data = generate_with_edge(sample_text, voice['id'])
-            
-            if not audio_data:
-                # Fallback to gTTS
+            if voice.get('service') == 'polly':
+                audio_data = generate_with_polly(sample_text, voice['id'])
+            elif voice.get('service') == 'edge':
+                audio_data = generate_with_edge(sample_text, voice['id'])
+            else:
                 lang_code = GTTS_LANG_CODES.get(voice.get('language'), "en")
                 audio_data = generate_with_gtts(sample_text, lang=lang_code)
             
@@ -981,10 +1441,30 @@ def voice_preview(voice_id):
         logger.error(f"Voice preview error: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+@app.route('/api/polly-voices', methods=['GET'])
+def get_polly_voices():
+    try:
+        if not polly_client:
+            return jsonify({'status': 'error', 'message': 'Amazon Polly not configured'}), 500
+            
+        response = polly_client.describe_voices()
+        return jsonify({
+            'status': 'success',
+            'voices': response['Voices']
+        })
+    except Exception as e:
+        logger.error(f"Error fetching Polly voices: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 @app.route('/static/audio/<path:filename>')
 def serve_audio(filename):
     return send_from_directory(AUDIO_FOLDER, filename)
 
 if __name__ == '__main__':
+    # Create session directory if it doesn't exist
+    if not os.path.exists(app.config['SESSION_FILE_DIR']):
+        os.makedirs(app.config['SESSION_FILE_DIR'])
+    
+    app.run(debug=True)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

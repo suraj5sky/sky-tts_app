@@ -6,7 +6,8 @@
     <meta name="description" content="SKY TTS - Professional Text-to-Speech conversion with multiple voices and languages. Convert any text to natural sounding speech instantly.">
     <meta name="keywords" content="text to speech, TTS, voice generator, speech synthesis, SKY TTS">
     <title>SKY TTS - Professional Text to Speech Converter</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         :root {
             --primary-color: #4361ee;
@@ -27,6 +28,141 @@
             --text-color: #f8f9fa;
             --card-bg: #1e1e1e;
             --dark-color: #f8f9fa;
+        }
+        
+        /* Profile Modal Styles */
+        .profile-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .profile-info {
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item label {
+            width: 150px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .plan-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .plan-badge.free {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .plan-badge.pro {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .plan-badge.enterprise {
+            background-color: #f3e5f5;
+            color: #8e24aa;
+        }
+
+        .plan-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+        }
+
+        .upgrade-btn {
+            margin-top: 15px;
+            background-color: var(--accent-color);
+        }
+
+        .danger-zone {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3f3;
+            border-radius: 10px;
+            border: 1px solid #ffcdd2;
+        }
+
+        .danger-btn {
+            background-color: var(--danger-color);
+        }
+
+        /* User Menu Styles */
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .user-menu.show {
+            display: block;
+        }
+
+        .user-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-menu-item:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .user-menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-menu-divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0;
         }
         
         * {
@@ -126,6 +262,7 @@
         
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
         
         label {
@@ -251,8 +388,8 @@
         }
         
         .voice-info {
-            background-color: rgba(248, 249, 250, 0.3);
-            padding: 20px;
+            background-color: rgba(67, 97, 238, 0.05);
+            padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
             border-left: 4px solid var(--primary-color);
@@ -275,25 +412,6 @@
             position: sticky;
             top: 20px;
             height: fit-content;
-        }
-        
-        .ad-container {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            text-align: center;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .ad-container p {
-            color: #6c757d;
-            margin-bottom: 15px;
         }
         
         .features-card {
@@ -397,12 +515,18 @@
             color: #adb5bd;
         }
 
-        /* New Styles for Enhanced Features */
+        /* Voice Controls Compact */
         .voice-controls {
             background-color: rgba(67, 97, 238, 0.05);
             padding: 15px;
             border-radius: 8px;
             margin: 15px 0;
+        }
+
+        .voice-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
 
         .range-container {
@@ -414,6 +538,8 @@
         .range-value {
             min-width: 40px;
             text-align: center;
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .file-upload {
@@ -430,6 +556,7 @@
             background-color: rgba(67, 97, 238, 0.1);
             border-radius: 8px;
             cursor: pointer;
+            width: fit-content;
         }
 
         .file-upload-btn:hover {
@@ -458,30 +585,67 @@
             z-index: 100;
         }
 
-        .voice-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+        /* Character Counter */
+        .char-counter {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 0.8rem;
+            color: #6c757d;
+            background-color: rgba(255,255,255,0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
         }
 
-        .voice-card {
-            padding: 15px;
-            border-radius: 8px;
-            background-color: rgba(67, 97, 238, 0.1);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+        .char-counter.limit-exceeded {
+            color: var(--danger-color);
+            font-weight: bold;
         }
 
-        .voice-card:hover {
-            background-color: rgba(67, 97, 238, 0.2);
-        }
+        /* Voice Gallery */
+.voice-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
 
-        .voice-card.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
+.voice-card {
+    padding: 15px;
+    border-radius: 8px;
+    background-color: rgba(67, 97, 238, 0.1);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid rgba(67, 97, 238, 0.2);
+}
+
+.voice-card:hover {
+    background-color: rgba(67, 97, 238, 0.2);
+}
+
+.voice-card h4 {
+    margin: 8px 0;
+    font-size: 1rem;
+}
+
+.voice-gender, .voice-style {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.no-voices {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    grid-column: 1 / -1;
+}
+
+.voice-card.active .voice-gender,
+.voice-card.active .voice-style {
+    color: rgba(255,255,255,0.8);
+}
 
         .preview-btn {
             background: none;
@@ -489,10 +653,286 @@
             color: var(--primary-color);
             font-size: 1.2rem;
             cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            transition: all 0.3s;
         }
 
         .voice-card.active .preview-btn {
             color: white;
+            background-color: rgba(255,255,255,0.2);
+        }
+		
+		.no-voices {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.status i {
+    margin-right: 8px;
+}
+
+.voice-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.voice-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.voice-card.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.voice-card.active .voice-gender,
+.voice-card.active .voice-style {
+    color: rgba(255,255,255,0.8);
+}
+
+#generateBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+        /* Select2 Customization */
+        .select2-container--default .select2-selection--single {
+            height: 46px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 46px;
+            color: var(--text-color);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px;
+        }
+
+        .select2-dropdown {
+            background-color: var(--card-bg);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .select2-results__option {
+            padding: 10px 15px;
+            color: var(--text-color);
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: rgba(67, 97, 238, 0.2);
+            color: var(--primary-color);
+        }
+		
+		/* Basic dropdown styles */
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+        /* Voice Filter */
+        .voice-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.voice-filter-btn {
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+}
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--danger-color);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .auth-form button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .auth-form button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .auth-providers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .auth-provider-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+        }
+
+        .github-btn {
+            background-color: #333;
+            color: white;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #6c757d;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .divider-text {
+            padding: 0 10px;
+        }
+
+        /* Payment Styles */
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .payment-method {
+            width: 60px;
+            height: 40px;
+            border-radius: 5px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .payment-method img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* User Menu */
+        .user-menu {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 10px 0;
+            min-width: 200px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .user-menu-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-menu-item:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .user-menu-item i {
+            width: 20px;
+            text-align: center;
         }
 
         /* Responsive Styles */
@@ -521,65 +961,18 @@
                 flex-direction: column;
             }
 
+            .voice-controls-grid {
+                grid-template-columns: 1fr;
+            }
+
             .voice-gallery {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
-        }
 
-        /* Dropdown Styles */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-            z-index: 1;
-            border-radius: 8px;
-            padding: 10px 0;
-        }
-        
-        .dropdown-content a {
-            color: var(--dark-color);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s;
-        }
-        
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-            color: var(--primary-color);
-        }
-        
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        .dropdown:hover .dropbtn {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .nav-item {
-            position: relative;
-        }
-
-        /* Dark mode specific styles */
-        .dark-mode .dropdown-content {
-            background-color: #2d2d2d;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.4);
-        }
-
-        .dark-mode .dropdown-content a {
-            color: #f8f9fa;
-        }
-
-        .dark-mode .dropdown-content a:hover {
-            background-color: #3d3d3d;
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
         }
 
         /* Animation */
@@ -607,48 +1000,18 @@
             <nav>
                 <ul>
                     <li><a href="#">Home</a></li>
-                    
-                    <li class="nav-item dropdown">
-                        <a href="#" class="dropbtn">Tools <i class="fas fa-caret-down"></i></a>
-                        <div class="dropdown-content">
-                            <a href="#">Text to Speech</a>
-                            <a href="#">Speech to Text</a>
-                            <a href="#">Audio Cutter</a>
-                            <a href="#">Audio Joiner</a>
-                            <a href="#">Audio Converter</a>
-                            <a href="#">Voice Changer</a>
+                    <li><a href="#" onclick="openModal('pricingModal')">Pricing</a></li>
+                    <li><a href="#" id="aboutLink">About</a></li>
+                    <li><a href="https://www.skyinfinitetech.com/" target="_blank">Blog</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li>
+                        <div class="auth-container">
+                            <a href="#" id="authButton" class="btn btn-outline">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                            <div id="userMenu" class="user-menu"></div>
                         </div>
                     </li>
-                    
-                    <li><a href="https://www.skyinfinitetech.com" target="_blank">Blogs</a></li>
-                    
-                    <li class="nav-item dropdown">
-                        <a href="#" class="dropbtn">About <i class="fas fa-caret-down"></i></a>
-                        <div class="dropdown-content">
-                            <div style="padding: 15px; max-width: 350px;">
-                                <p>🌍 Shape Your Future with AI & Infinite Knowledge...!!</p>
-                                <p>Welcome to SKY AI - your gateway to advanced AI content creation tools that transform your ideas into reality.</p>
-                                <p>🌐 Want to Generate Text-to-Voice, Images & Videos? <a href="http://www.ai.skyinfinitetech.com" target="_blank" style="color: var(--primary-color);">http://www.ai.skyinfinitetech.com</a></p>
-                                <p>📚 Read In-Depth Tech & Self-Improvement Blogs <a href="http://www.skyinfinitetech.com" target="_blank" style="color: var(--primary-color);">http://www.skyinfinitetech.com</a></p>
-                                <p>▶ Watch Life-Changing Videos on YouTube <a href="https://www.youtube.com/@SkyInfinite-Learning" target="_blank" style="color: var(--primary-color);">https://www.youtube.com/@SkyInfinite-Learning</a></p>
-                                <p>🔥 Transform Your Skills, Business & Productivity - Join Us Today! 🔥</p>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    <li class="nav-item dropdown">
-                        <a href="#" class="dropbtn">Account <i class="fas fa-caret-down"></i></a>
-                        <div class="dropdown-content">
-                            <a href="#"><i class="fab fa-google"></i> Sign in with Google</a>
-                            <a href="#"><i class="fab fa-github"></i> Sign in with GitHub</a>
-                            <a href="#"><i class="fas fa-user-plus"></i> Create Account</a>
-                            <a href="#"><i class="fas fa-sign-in-alt"></i> Login</a>
-                        </div>
-                    </li>
-                    
-                    <li><a href="#">Pricing</a></li>
-                    
-                    <li><a href="#">Contact</a></li>
                 </ul>
             </nav>
         </div>
@@ -662,7 +1025,8 @@
                     
                     <div class="form-group file-upload">
                         <label for="text">Enter your text or upload file:</label>
-                        <textarea id="text" placeholder="Type or paste your text here to convert it to speech..."></textarea>
+                        <textarea id="text" placeholder="Type or paste your text here to convert it to speech..." maxlength="5000"></textarea>
+                        <div class="char-counter"><span id="charCount">0</span>/5000</div>
                         <div>
                             <input type="file" id="fileUpload" accept=".txt,.docx" style="display: none;">
                             <label for="fileUpload" class="file-upload-btn">
@@ -675,14 +1039,14 @@
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="language">Language:</label>
-                            <select id="language" onchange="updateVoices()">
+                            <select id="language" class="language-select" onchange="updateVoices()">
                                 <option value="">Select Language</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label for="voice">Voice:</label>
-                            <select id="voice">
+                            <select id="voice" class="voice-select">
                                 <option value="">Select Voice</option>
                             </select>
                         </div>
@@ -690,45 +1054,37 @@
 
                     <div class="voice-controls">
                         <h3>Voice Customization</h3>
-                        <div class="form-group">
-                            <label for="speed">Speed: <span id="speedValue" class="range-value">1.0x</span></label>
-                            <div class="range-container">
-                                <span>0.5x</span>
-                                <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('speedValue').textContent=this.value+'x'">
-                                <span>2.0x</span>
+                        <div class="voice-controls-grid">
+                            <div class="form-group">
+                                <label for="speed">Speed: <span id="speedValue" class="range-value">1.0x</span></label>
+                                <div class="range-container">
+                                    <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('speedValue').textContent=this.value+'x'">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="pitch">Pitch: <span id="pitchValue" class="range-value">1.0x</span></label>
-                            <div class="range-container">
-                                <span>0.5x</span>
-                                <input type="range" id="pitch" min="0.5" max="1.5" step="0.1" value="1" oninput="document.getElementById('pitchValue').textContent=this.value+'x'">
-                                <span>1.5x</span>
+                            <div class="form-group">
+                                <label for="pitch">Pitch: <span id="pitchValue" class="range-value">1.0x</span></label>
+                                <div class="range-container">
+                                    <input type="range" id="pitch" min="0.5" max="1.5" step="0.1" value="1" oninput="document.getElementById('pitchValue').textContent=this.value+'x'">
+                                </div>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="use_bark">
+                                <label for="use_bark">Use Offline TTS (Bark)</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="use_ssml">
+                                <label for="use_ssml">Use SSML (Advanced Markup)</label>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="use_bark">
-                        <label for="use_bark">Use Offline TTS (Bark)</label>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="use_ssml">
-                        <label for="use_ssml">Use SSML (Advanced Markup)</label>
-                    </div>
-                    
-                    <button class="btn btn-block" onclick="generateTTS()">
+                    <button class="btn btn-block" onclick="generateTTS()" id="generateBtn">
                         <i class="fas fa-play"></i> Generate Speech
                     </button>
                     
                     <div id="status" class="status"></div>
                     
                     <audio id="audioPlayer" class="audio-player" controls style="display: none;"></audio>
-                    
-                    <button class="btn btn-outline btn-block" onclick="playPreview()" id="previewBtn" disabled>
-                        <i class="fas fa-headphones"></i> Preview Voice
-                    </button>
                     
                     <div id="voiceInfo" class="voice-info" style="display: none;">
                         <h3>Voice Details</h3>
@@ -754,10 +1110,15 @@
             </div>
             
             <aside>
-                <div class="ad-container animated delay-2">
-                    <p>Advertisement</p>
-                    <div style="width: 300px; height: 250px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center;">
-                        <p>Ad Space</p>
+                <div class="features-card animated delay-2">
+                    <h3>Popular Voices</h3>
+                    <div class="voice-filter">
+                        <button class="voice-filter-btn active" onclick="filterVoices('all', event)">All</button>
+                        <button class="voice-filter-btn" onclick="filterVoices('male', event)">Male</button>
+                        <button class="voice-filter-btn" onclick="filterVoices('female', event)">Female</button>
+                    </div>
+                    <div class="voice-gallery" id="voiceGallery">
+                        <!-- Will be populated by JavaScript -->
                     </div>
                 </div>
                 
@@ -786,18 +1147,234 @@
                         </li>
                     </ul>
                 </div>
-
-                <div class="features-card animated delay-3">
-                    <h3>Voice Gallery</h3>
-                    <div class="voice-gallery" id="voiceGallery">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
             </aside>
         </main>
     </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2>My Account</h2>
+            
+            <div class="profile-tabs">
+                <button class="tab-btn active" onclick="openTab('profileTab')">Profile</button>
+                <button class="tab-btn" onclick="openTab('subscriptionTab')">Subscription</button>
+                <button class="tab-btn" onclick="openTab('securityTab')">Security</button>
+            </div>
+            
+            <div id="profileTab" class="tab-content active">
+                <div class="profile-info">
+                    <div class="info-item">
+                        <label>Name:</label>
+                        <span id="profileName"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span id="profileEmail"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>Member Since:</label>
+                        <span id="profileCreated"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>Current Plan:</label>
+                        <span id="profilePlan" class="plan-badge free">Free</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Characters Used:</label>
+                        <span id="profileCharsUsed">0</span>/<span id="profileCharLimit">1000</span>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="logout()">Log Out</button>
+            </div>
+            
+            <div id="subscriptionTab" class="tab-content">
+                <h3>Subscription Plan</h3>
+                <div id="currentPlan" class="plan-card">
+                    <h4 id="planName">Free Plan</h4>
+                    <div class="plan-features">
+                        <div><i class="fas fa-check"></i> <span>1000 characters per conversion</span></div>
+                        <div><i class="fas fa-check"></i> <span>5 conversions per day</span></div>
+                    </div>
+                    <button class="btn upgrade-btn" onclick="openModal('pricingModal')">Upgrade Plan</button>
+                </div>
+                
+                <div class="redeem-section">
+                    <h4>Redeem Code</h4>
+                    <p>Enter a promo code to upgrade your account</p>
+                    <div class="input-group">
+                        <input type="text" id="promoCode" placeholder="Enter promo code">
+                        <button class="btn">Apply</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="securityTab" class="tab-content">
+                <div class="security-section">
+                    <h3>Reset Password</h3>
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="currentPassword">
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmPassword">
+                    </div>
+                    <button class="btn">Update Password</button>
+                </div>
+                
+                <div class="danger-zone">
+                    <h3>Danger Zone</h3>
+                    <p>Permanently delete your account and all data</p>
+                    <button class="btn danger-btn" onclick="confirmDeleteAccount()">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <footer>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login to Your Account</h2>
+            
+            <form class="auth-form" id="loginForm">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            
+            <div class="divider">
+                <span class="divider-text">OR</span>
+            </div>
+            
+            <div class="auth-providers">
+                <button class="auth-provider-btn google-btn" onclick="signInWithGoogle()">
+                    <i class="fab fa-google"></i> Sign in with Google
+                </button>
+                <button class="auth-provider-btn github-btn" onclick="signInWithGitHub()">
+                    <i class="fab fa-github"></i> Sign in with GitHub
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                Don't have an account? <a href="#" onclick="openModal('signupModal'); closeModal('loginModal')">Sign up</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('signupModal')">&times;</span>
+            <h2>Create Your Account</h2>
+            
+            <form class="auth-form" id="signupForm">
+                <input type="text" placeholder="Full Name" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <input type="password" placeholder="Confirm Password" required>
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
+            
+            <div class="divider">
+                <span class="divider-text">OR</span>
+            </div>
+            
+            <div class="auth-providers">
+                <button class="auth-provider-btn google-btn" onclick="signInWithGoogle()">
+                    <i class="fab fa-google"></i> Sign up with Google
+                </button>
+                <button class="auth-provider-btn github-btn" onclick="signInWithGitHub()">
+                    <i class="fab fa-github"></i> Sign up with GitHub
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                Already have an account? <a href="#" onclick="openModal('loginModal'); closeModal('signupModal')">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Pricing Modal -->
+    <div id="pricingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('pricingModal')">&times;</span>
+            <h2>SKY TTS Pricing Plans</h2>
+            <p>Choose the plan that fits your needs</p>
+            
+            <div class="pricing-plans">
+                <div class="pricing-card">
+                    <h3>Free</h3>
+                    <div class="price">$0 <span>/ month</span></div>
+                    <ul class="pricing-features">
+                        <li>1000 characters per conversion</li>
+                        <li>Basic voices</li>
+                        <li>5 conversions per day</li>
+                        <li>Standard speed & pitch control</li>
+                        <li>Email support</li>
+                    </ul>
+                    <button class="btn" onclick="selectPlan('free')">Get Started</button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="featured-badge">Most Popular</div>
+                    <h3>Pro</h3>
+                    <div class="price">$9.99 <span>/ month</span></div>
+                    <ul class="pricing-features">
+                        <li>5000 characters per conversion</li>
+                        <li>Premium voices (Edge, Polly)</li>
+                        <li>Unlimited conversions</li>
+                        <li>Advanced speed & pitch control</li>
+                        <li>Priority email support</li>
+                        <li>Commercial use license</li>
+                    </ul>
+                    <button class="btn" onclick="selectPlan('pro')">Choose Plan</button>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">$29.99 <span>/ month</span></div>
+                    <ul class="pricing-features">
+                        <li>Unlimited characters</li>
+                        <li>All premium voices</li>
+                        <li>Unlimited conversions</li>
+                        <li>Advanced voice controls</li>
+                        <li>24/7 priority support</li>
+                        <li>Commercial use license</li>
+                        <li>API access</li>
+                    </ul>
+                    <button class="btn" onclick="selectPlan('enterprise')">Choose Plan</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h3>Payment Methods</h3>
+                <div class="payment-methods">
+                    <div class="payment-method">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/stripe/stripe-original.svg" alt="Stripe">
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/paypal/paypal-original.svg" alt="PayPal">
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google Pay">
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="Apple Pay">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column">
@@ -813,31 +1390,30 @@
                 </div>
                 
                 <div class="footer-column">
-                    <h3>Tools</h3>
+                    <h3>Quick Links</h3>
                     <ul>
-                        <li><a href="#">Text to Speech</a></li>
-                        <li><a href="#">Speech to Text</a></li>
-                        <li><a href="#">Audio Cutter</a></li>
-                        <li><a href="#">Audio Joiner</a></li>
-                        <li><a href="#">Audio Converter</a></li>
-                        <li><a href="#">Voice Changer</a></li>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#" onclick="openModal('pricingModal')">Pricing</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Blog</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
-                    <h3>Company</h3>
+                    <h3>Support</h3>
                     <ul>
-                        <li><a href="https://www.skyinfinitetech.com" target="_blank">Blogs</a></li>
-                        <li><a href="http://www.ai.skyinfinitetech.com" target="_blank">AI Tools</a></li>
-                        <li><a href="#">Pricing</a></li>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Refund Policy</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="copyright">
-                <p>&copy; 2025 SKY TTS. All rights reserved. | <a href="#" style="color: #adb5bd;">Terms of Service</a> | <a href="#" style="color: #adb5bd;">Privacy Policy</a></p>
+                <p>&copy; 2025 SKY TTS. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -846,275 +1422,447 @@
         <i class="fas fa-moon" id="darkModeIcon"></i>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        let voicesData = {};
-        let currentVoice = null;
-        
-        // Dark mode toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('darkModeIcon');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                localStorage.setItem('darkMode', 'enabled');
+    // Simple storage for our data
+    let appData = {
+        voices: {},
+        user: null,
+        isLoggedIn: false
+    };
+
+    // Initialize everything when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        loadInitialData();
+    });
+
+    // Set up all event listeners
+    function setupEventListeners() {
+        // Auth button
+        document.getElementById('authButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (appData.isLoggedIn) {
+                toggleUserMenu();
             } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        }
-
-        // Check for saved dark mode preference
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkModeIcon').classList.remove('fa-moon');
-            document.getElementById('darkModeIcon').classList.add('fa-sun');
-        }
-
-        // File upload handler
-        document.getElementById('fileUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            document.getElementById('fileName').textContent = file.name;
-            
-            if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('text').value = e.target.result;
-                };
-                reader.readAsText(file);
-            } else {
-                showStatus('Only .txt files are currently supported', 'error');
+                openModal('loginModal');
             }
         });
 
-        // Load languages and voices
-        async function loadVoices() {
-            try {
-                const response = await fetch('/api/voices');
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    voicesData = data.voices;
-                    
-                    // Populate languages
-                    const languageSelect = document.getElementById('language');
-                    data.languages.forEach(lang => {
-                        const option = document.createElement('option');
-                        option.value = lang;
-                        option.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
-                        languageSelect.appendChild(option);
-                    });
+        // File upload
+        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
 
-                    // Populate voice gallery
-                    populateVoiceGallery(data.voices);
-                } else {
-                    showStatus('Error loading voices: ' + data.message, 'error');
-                }
-            } catch (error) {
-                showStatus('Failed to load voices: ' + error.message, 'error');
-            }
-        }
+        // Text input
+        document.getElementById('text').addEventListener('input', updateCharCount);
 
-        // Populate voice gallery
-        function populateVoiceGallery(voices) {
-            const gallery = document.getElementById('voiceGallery');
-            gallery.innerHTML = '';
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', generateTTS);
 
-            // Get first language's voices for demo
-            const firstLang = Object.keys(voices)[0];
-            const demoVoices = voices[firstLang].slice(0, 6); // Show first 6 voices
+        // Language dropdown
+        document.getElementById('language').addEventListener('change', function() {
+            updateVoiceDropdown();
+            updateVoiceGallery();
+        });
 
-            demoVoices.forEach(voice => {
-                const card = document.createElement('div');
-                card.className = 'voice-card';
-                card.innerHTML = `
-                    <button class="preview-btn" onclick="playGalleryPreview('${voice.id}', event)"><i class="fas fa-play"></i></button>
-                    <h4>${voice.name}</h4>
-                    <small>${voice.gender || 'Neutral'}</small>
-                `;
-                gallery.appendChild(card);
-            });
-        }
-
-        // Play preview from gallery
-        function playGalleryPreview(voiceId, e) {
-            e.stopPropagation();
-            // Find voice data
-            for (const lang in voicesData) {
-                const voice = voicesData[lang].find(v => v.id === voiceId);
-                if (voice) {
-                    currentVoice = voice;
-                    playPreview();
-                    return;
-                }
-            }
-            showStatus('Voice preview not available', 'error');
-        }
-        
-        // Update voices dropdown based on selected language
-        function updateVoices() {
-            const language = document.getElementById('language').value;
-            const voiceSelect = document.getElementById('voice');
-            
-            // Clear existing options
-            voiceSelect.innerHTML = '<option value="">Select Voice</option>';
-            document.getElementById('previewBtn').disabled = true;
-            document.getElementById('voiceInfo').style.display = 'none';
-            currentVoice = null;
-            
-            if (!language) return;
-            
-            // Add voices for selected language
-            const voices = voicesData[language] || [];
-            voices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = voice.id;
-                option.textContent = voice.name;
-                option.dataset.voice = JSON.stringify(voice);
-                voiceSelect.appendChild(option);
-            });
-        }
-        
-        // Handle voice selection change
+        // Voice dropdown
         document.getElementById('voice').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.value) {
-                currentVoice = JSON.parse(selectedOption.dataset.voice);
-                document.getElementById('previewBtn').disabled = false;
-                updateVoiceInfo(currentVoice);
-            } else {
-                document.getElementById('previewBtn').disabled = true;
-                document.getElementById('voiceInfo').style.display = 'none';
-                currentVoice = null;
-            }
+            updateVoiceInfo();
         });
-        
-        // Update voice information display
-        function updateVoiceInfo(voice) {
-            const voiceInfo = document.getElementById('voiceInfo');
-            document.getElementById('voiceDescription').textContent = voice.description || 'No description available';
-            document.getElementById('voiceStyle').textContent = voice.style || 'Not specified';
-            document.getElementById('voiceUseCases').textContent = voice.use_cases ? voice.use_cases.join(', ') : 'General purpose';
-            document.getElementById('voiceAge').textContent = voice.age_range || 'Not specified';
-            document.getElementById('voiceMood').textContent = voice.mood || 'Not specified';
-            voiceInfo.style.display = 'block';
-        }
-        
-        // Play voice preview
-        async function playPreview() {
-            if (!currentVoice) return;
-            
-            showStatus('Loading preview...');
-            
-            try {
-                const audioPlayer = document.getElementById('audioPlayer');
-                audioPlayer.src = `/api/voice-preview/${currentVoice.id}`;
-                audioPlayer.style.display = 'block';
-                audioPlayer.play();
-                showStatus('Playing preview...', 'success');
-            } catch (error) {
-                showStatus('Failed to play preview: ' + error.message, 'error');
-            }
-        }
-        
-        // Generate TTS
-        async function generateTTS() {
-            const text = document.getElementById('text').value.trim();
-            const language = document.getElementById('language').value;
-            const voice = document.getElementById('voice').value;
-            const useBark = document.getElementById('use_bark').checked;
-            const useSSML = document.getElementById('use_ssml').checked;
-            const speed = document.getElementById('speed').value;
-            const pitch = document.getElementById('pitch').value;
-            
-            if (!text) {
-                showStatus('Please enter some text', 'error');
-                return;
-            }
-            
-            if (!language || !voice) {
-                showStatus('Please select a language and voice', 'error');
-                return;
-            }
-            
-            showStatus('Generating speech...');
-            
-            try {
-                const audioPlayer = document.getElementById('audioPlayer');
-                
-                // Determine which API to use
-                let apiUrl, payload;
-                if (useBark) {
-                    apiUrl = '/api/bark_tts';
-                    payload = { 
-                        text,
-                        speed,
-                        pitch 
-                    };
-                } else {
-                    apiUrl = '/api/generate_tts';
-                    payload = { 
-                        text, 
-                        language, 
-                        voice_id: voice,
-                        use_bark: useBark,
-                        use_ssml: useSSML,
-                        speed,
-                        pitch
-                    };
-                }
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    audioPlayer.src = data.audio_url;
-                    audioPlayer.style.display = 'block';
-                    audioPlayer.play();
-                    showStatus('Speech generated successfully!', 'success');
-                } else {
-                    showStatus('Error: ' + data.message, 'error');
-                }
-            } catch (error) {
-                showStatus('Failed to generate speech: ' + error.message, 'error');
-            }
-        }
-        
-        // Show status message
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = 'status ' + (type || '');
-            statusDiv.style.display = 'block';
-            
-            if (type === 'success' || type === 'error') {
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 5000);
-            }
-        }
-        
-        // Initialize on page load
-        window.onload = loadVoices;
 
-        // Add click handlers for new dropdowns
-        document.querySelectorAll('.dropdown-content a').forEach(item => {
-            item.addEventListener('click', function(e) {
-                if(this.getAttribute('href') === '#') {
-                    e.preventDefault();
-                }
+        // Login form
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                const password = this.querySelector('input[type="password"]').value;
+                handleLogin(email, password);
             });
+        }
+
+        // Signup form
+        const signupForm = document.getElementById('signupForm');
+        if (signupForm) {
+            signupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = this.querySelector('input[type="text"]').value;
+                const email = this.querySelector('input[type="email"]').value;
+                const password = this.querySelector('input[type="password"]').value;
+                handleSignup(name, email, password);
+            });
+        }
+    }
+
+    // Load initial data from backend
+    async function loadInitialData() {
+        try {
+            // Load voices
+            const voicesResponse = await fetch('/api/voices');
+            const voicesData = await voicesResponse.json();
+            
+            if (voicesData.status === 'success') {
+                appData.voices = voicesData.voices;
+                populateLanguageDropdown();
+                updateVoiceDropdown();
+                updateVoiceGallery();
+            }
+
+            // Check auth status
+            const authResponse = await fetch('/api/auth/status');
+            const authData = await authResponse.json();
+            
+            if (authData.authenticated) {
+                appData.isLoggedIn = true;
+                appData.user = authData.user;
+                updateAuthUI();
+            }
+        } catch (error) {
+            console.error('Initialization error:', error);
+            showStatus('Error loading initial data', 'error');
+        }
+    }
+
+    // Populate language dropdown
+    function populateLanguageDropdown() {
+        const select = document.getElementById('language');
+        select.innerHTML = '<option value="">Select Language</option>';
+        
+        Object.keys(appData.voices).forEach(lang => {
+            const option = document.createElement('option');
+            option.value = lang;
+            option.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
+            select.appendChild(option);
         });
-    </script>
+    }
+
+    // Update voice dropdown based on selected language
+    function updateVoiceDropdown() {
+        const language = document.getElementById('language').value;
+        const select = document.getElementById('voice');
+        select.innerHTML = '<option value="">Select Voice</option>';
+        
+        if (!language || !appData.voices[language]) return;
+        
+        appData.voices[language].forEach(voice => {
+            const option = document.createElement('option');
+            option.value = voice.id;
+            option.textContent = voice.name;
+            select.appendChild(option);
+        });
+    }
+
+    // Update voice gallery display
+    function updateVoiceGallery(filter = 'all') {
+        const gallery = document.getElementById('voiceGallery');
+        gallery.innerHTML = '';
+        
+        const language = document.getElementById('language').value;
+        let voices = [];
+        
+        // Get voices for current language or all voices
+        if (language && appData.voices[language]) {
+            voices = appData.voices[language];
+        } else {
+            Object.values(appData.voices).forEach(langVoices => {
+                voices.push(...langVoices);
+            });
+        }
+        
+        // Apply filter
+        if (filter !== 'all') {
+            voices = voices.filter(voice => voice.gender === filter);
+        }
+        
+        // Display voices
+        voices.forEach(voice => {
+            const card = document.createElement('div');
+            card.className = 'voice-card';
+            card.innerHTML = `
+                <button class="preview-btn" onclick="playVoicePreview('${voice.id}')">
+                    <i class="fas fa-play"></i>
+                </button>
+                <h4>${voice.name}</h4>
+                <div class="voice-gender">${voice.gender || 'N/A'}</div>
+                <div class="voice-style">${voice.style || 'Standard'}</div>
+            `;
+            
+            card.addEventListener('click', () => selectVoice(voice));
+            gallery.appendChild(card);
+        });
+    }
+
+    // Select a voice from the gallery
+    function selectVoice(voice) {
+        // Find the voice's language if not already selected
+        if (!document.getElementById('language').value) {
+            for (const lang in appData.voices) {
+                if (appData.voices[lang].some(v => v.id === voice.id)) {
+                    document.getElementById('language').value = lang;
+                    updateVoiceDropdown();
+                    break;
+                }
+            }
+        }
+        
+        document.getElementById('voice').value = voice.id;
+        updateVoiceInfo();
+    }
+
+    // Update voice information display
+    function updateVoiceInfo() {
+        const voiceId = document.getElementById('voice').value;
+        const language = document.getElementById('language').value;
+        
+        if (!voiceId || !language) return;
+        
+        const voice = appData.voices[language].find(v => v.id === voiceId);
+        if (!voice) return;
+        
+        const infoDiv = document.getElementById('voiceInfo');
+        infoDiv.innerHTML = `
+            <h3>Voice Details</h3>
+            <p>${voice.description || 'No description available'}</p>
+            <p><strong>Style:</strong> ${voice.style || 'N/A'}</p>
+            <p><strong>Best for:</strong> ${voice.use_cases ? voice.use_cases.join(', ') : 'N/A'}</p>
+            <p><strong>Age Range:</strong> ${voice.age_range || 'N/A'}</p>
+            <p><strong>Mood:</strong> ${voice.mood || 'N/A'}</p>
+        `;
+        infoDiv.style.display = 'block';
+    }
+
+    // Handle login
+    async function handleLogin(email, password) {
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': getCSRFToken() // Add if using CSRF protection
+            },
+            credentials: 'include', // Required for sessions
+            body: JSON.stringify({ email, password })
+        });
+        
+        if (response.status === 401) {
+            throw new Error('Invalid email or password');
+        }
+        
+        const data = await response.json();
+        // ... rest of your handling
+    } catch (error) {
+        // Show error to user
+    }
+}
+
+    // Handle signup
+    async function handleSignup(name, email, password) {
+        try {
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                showStatus('Account created! Please login.', 'success');
+                closeModal('signupModal');
+                openModal('loginModal');
+            } else {
+                throw new Error(data.message || 'Signup failed');
+            }
+        } catch (error) {
+            showStatus(error.message, 'error');
+        }
+    }
+
+    // Update auth UI
+    function updateAuthUI() {
+        const authButton = document.getElementById('authButton');
+        
+        if (appData.isLoggedIn && appData.user) {
+            authButton.innerHTML = `
+                <i class="fas fa-user-circle"></i>
+                ${appData.user.name || 'User'}
+                <i class="fas fa-caret-down"></i>
+            `;
+        } else {
+            authButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        }
+    }
+
+    // Generate TTS
+    async function generateTTS() {
+        const text = document.getElementById('text').value.trim();
+        const language = document.getElementById('language').value;
+        const voiceId = document.getElementById('voice').value;
+        
+        if (!text) {
+            showStatus('Please enter text to convert', 'error');
+            return;
+        }
+        
+        if (!language || !voiceId) {
+            showStatus('Please select both language and voice', 'error');
+            return;
+        }
+
+        showStatus('Generating speech...', 'success');
+        document.getElementById('generateBtn').disabled = true;
+
+        try {
+            const response = await fetch('/api/generate_tts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text,
+                    language,
+                    voice_id: voiceId,
+                    speed: document.getElementById('speed').value,
+                    pitch: document.getElementById('pitch').value,
+                    use_ssml: document.getElementById('use_ssml').checked
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = data.audio_url;
+                audioPlayer.style.display = 'block';
+                showStatus('Speech generated!', 'success');
+            } else {
+                throw new Error(data.message || 'Generation failed');
+            }
+        } catch (error) {
+            console.error('TTS Generation Error:', error);
+            showStatus(error.message, 'error');
+        } finally {
+            document.getElementById('generateBtn').disabled = false;
+        }
+    }
+
+    // Handle file upload
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        document.getElementById('fileName').textContent = file.name;
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch('/api/process-file', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                document.getElementById('text').value = data.text;
+                updateCharCount();
+                showStatus('File processed successfully', 'success');
+            } else {
+                throw new Error(data.message || 'File processing failed');
+            }
+        } catch (error) {
+            console.error('File upload error:', error);
+            showStatus(error.message, 'error');
+        }
+    }
+
+    // Play voice preview
+    async function playVoicePreview(voiceId) {
+        try {
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = `/api/voice-preview/${voiceId}`;
+            audioPlayer.style.display = 'block';
+            audioPlayer.play();
+        } catch (error) {
+            console.error('Error playing preview:', error);
+            showStatus('Could not play preview', 'error');
+        }
+    }
+
+    // Update character count
+    function updateCharCount() {
+        const text = document.getElementById('text').value;
+        const counter = document.getElementById('charCount');
+        counter.textContent = text.length;
+        counter.className = text.length > 5000 ? 'char-counter limit-exceeded' : 'char-counter';
+    }
+
+    // Show status message
+    function showStatus(message, type) {
+        const statusElement = document.getElementById('status');
+        statusElement.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            ${message}
+        `;
+        statusElement.className = `status ${type}`;
+        statusElement.style.display = 'block';
+        
+        setTimeout(() => {
+            statusElement.style.display = 'none';
+        }, 5000);
+    }
+
+    // Global utility functions
+    window.openModal = function(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    };
+
+    window.closeModal = function(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    };
+
+    window.toggleUserMenu = function() {
+        const menu = document.getElementById('userMenu');
+        menu.classList.toggle('show');
+        
+        document.addEventListener('click', function closeMenu(e) {
+            if (!menu.contains(e.target)) {
+                menu.classList.remove('show');
+                document.removeEventListener('click', closeMenu);
+            }
+        });
+    };
+
+    window.logout = async function() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            appData.isLoggedIn = false;
+            appData.user = null;
+            updateAuthUI();
+            showStatus('Logged out successfully', 'success');
+            closeModal('profileModal');
+        } catch (error) {
+            showStatus('Logout failed', 'error');
+        }
+    };
+
+    window.filterVoices = function(gender, event) {
+        event.preventDefault();
+        document.querySelectorAll('.voice-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        updateVoiceGallery(gender);
+    };
+
+    window.toggleDarkMode = function() {
+        document.body.classList.toggle('dark-mode');
+        const icon = document.getElementById('darkModeIcon');
+        icon.classList.toggle('fa-moon');
+        icon.classList.toggle('fa-sun');
+    };
+</script>
 </body>
 </html>
