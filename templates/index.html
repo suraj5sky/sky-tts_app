@@ -998,22 +998,21 @@ select {
                 <h1>SKY <span>TTS</span></h1>
             </div>
             <nav>
-                <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#" onclick="openModal('pricingModal')">Pricing</a></li>
-                    <li><a href="#" id="aboutLink">About</a></li>
-                    <li><a href="https://www.skyinfinitetech.com/" target="_blank">Blog</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                    <li>
-                        <div class="auth-container">
-                            <a href="#" id="authButton" class="btn btn-outline">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                            <div id="userMenu" class="user-menu"></div>
-                        </div>
-                    </li>
-                </ul>
-            </nav>
+    <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#" onclick="openModal('pricingModal')">Pricing</a></li>
+        <li><a href="https://www.skyinfinitetech.com/" target="_blank">About Me</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li>
+            <div class="auth-container">
+                <a href="#" id="authButton" class="btn btn-outline">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <div id="userMenu" class="user-menu"></div>
+            </div>
+        </li>
+    </ul>
+</nav>
         </div>
     </header>
 
@@ -1069,7 +1068,7 @@ select {
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="use_bark">
-                                <label for="use_bark">Use Offline TTS (Bark)</label>
+                                <label for="use_bark">Premium Voice</label>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="use_ssml">
@@ -1082,6 +1081,15 @@ select {
                         <i class="fas fa-play"></i> Generate Speech
                     </button>
                     
+					<div style="text-align: center; margin: 15px 0;">
+    <p style="font-size: 0.9rem; color: #666;">
+        <i class="fas fa-unlock-alt"></i> No login required! 
+        <a href="#" onclick="openModal('signupModal')" style="color: var(--primary-color); text-decoration: underline;">
+            Sign up
+        </a> for higher limits and premium voices.
+    </p>
+</div>
+					
                     <div id="status" class="status"></div>
                     
                     <audio id="audioPlayer" class="audio-player" controls style="display: none;"></audio>
@@ -1147,6 +1155,17 @@ select {
                         </li>
                     </ul>
                 </div>
+				<div class="features-card" style="margin-top: 20px;">
+    <h3><i class="fas fa-crown" style="color: var(--warning-color);"></i> Go Premium</h3>
+    <ul class="features-list" style="margin-bottom: 15px;">
+        <li><i class="fas fa-check-circle" style="color: var(--success-color);"></i> 10,000 character limit</li>
+        <li><i class="fas fa-check-circle" style="color: var(--success-color);"></i> Commercial usage rights</li>
+        <li><i class="fas fa-check-circle" style="color: var(--success-color);"></i> Priority processing</li>
+    </ul>
+    <button class="btn" onclick="openModal('signupModal')" style="width: 100%; background: linear-gradient(to right, var(--warning-color), var(--accent-color));">
+        <i class="fas fa-rocket"></i> Upgrade Now
+    </button>
+</div>
             </aside>
         </main>
     </div>
@@ -1244,11 +1263,11 @@ select {
             <span class="close" onclick="closeModal('loginModal')">&times;</span>
             <h2>Login to Your Account</h2>
             
-            <form class="auth-form" id="loginForm">
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Password" required>
-                <button type="submit" class="btn">Login</button>
-            </form>
+            <form class="auth-form" id="loginForm" onsubmit="handleLoginSubmit(event)">
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button type="submit" class="btn">Login</button>
+</form>
             
             <div class="divider">
                 <span class="divider-text">OR</span>
@@ -1275,13 +1294,13 @@ select {
             <span class="close" onclick="closeModal('signupModal')">&times;</span>
             <h2>Create Your Account</h2>
             
-            <form class="auth-form" id="signupForm">
-                <input type="text" placeholder="Full Name" required>
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Password" required>
-                <input type="password" placeholder="Confirm Password" required>
-                <button type="submit" class="btn">Sign Up</button>
-            </form>
+            <form class="auth-form" id="signupForm" onsubmit="handleSignupSubmit(event)">
+    <input type="text" id="signupName" placeholder="Full Name" required>
+    <input type="email" id="signupEmail" placeholder="Email" required>
+    <input type="password" id="signupPassword" placeholder="Password" required>
+    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+    <button type="submit" class="btn">Sign Up</button>
+</form>
             
             <div class="divider">
                 <span class="divider-text">OR</span>
@@ -1379,10 +1398,10 @@ select {
             <div class="footer-content">
                 <div class="footer-column">
                     <h3>SKY TTS</h3>
-                    <p>Professional text-to-speech conversion for all your needs. Convert any text to natural sounding speech instantly.</p>
+                    <p>Transform your ideas into reality in seconds with our powerful tools — Fast. Expressive. Professional.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://x.com/home" target="_blank"><i class="fab fa-twitter"></i></a>
                         <a href="#"><i class="fab fa-instagram"></i></a>
                         <a href="#"><i class="fab fa-linkedin-in"></i></a>
                         <a href="https://www.youtube.com/@SkyInfinite-Learning" target="_blank"><i class="fab fa-youtube"></i></a>
@@ -1396,7 +1415,7 @@ select {
                         <li><a href="#" onclick="openModal('pricingModal')">Pricing</a></li>
                         <li><a href="#">Documentation</a></li>
                         <li><a href="#">API</a></li>
-                        <li><a href="#">Blog</a></li>
+                        <li><a href="https://www.skyinfinitetech.com/" target="_blank">About</a></li>
                     </ul>
                 </div>
                 
@@ -1423,446 +1442,597 @@ select {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
+<script>
     // Simple storage for our data
-    let appData = {
-        voices: {},
-        user: null,
-        isLoggedIn: false
-    };
+let appData = {
+    voices: {},
+    user: null,
+    isLoggedIn: false
+};
 
-    // Initialize everything when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        setupEventListeners();
-        loadInitialData();
+// Initialize everything when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    loadInitialData();
+    
+    // Initialize Select2 dropdowns
+    $('.language-select').select2();
+    $('.voice-select').select2();
+});
+
+// Set up all event listeners
+function setupEventListeners() {
+    // Auth button
+    document.getElementById('authButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (appData.isLoggedIn) {
+            toggleUserMenu();
+        } else {
+            openModal('loginModal');
+        }
     });
 
-    // Set up all event listeners
-    function setupEventListeners() {
-        // Auth button
-        document.getElementById('authButton').addEventListener('click', function(e) {
-            e.preventDefault();
-            if (appData.isLoggedIn) {
-                toggleUserMenu();
-            } else {
-                openModal('loginModal');
-            }
-        });
+    // File upload
+    document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
 
-        // File upload
-        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+    // Text input
+    document.getElementById('text').addEventListener('input', updateCharCount);
+}
 
-        // Text input
-        document.getElementById('text').addEventListener('input', updateCharCount);
-
-        // Generate button
-        document.getElementById('generateBtn').addEventListener('click', generateTTS);
-
-        // Language dropdown
-        document.getElementById('language').addEventListener('change', function() {
+// Load initial data from backend
+async function loadInitialData() {
+    try {
+        // Load voices
+        const voicesResponse = await fetch('/api/voices');
+        if (!voicesResponse.ok) {
+            throw new Error('Failed to fetch voices');
+        }
+        const voicesData = await voicesResponse.json();
+        
+        if (voicesData.status === 'success') {
+            appData.voices = voicesData.voices;
+            populateLanguageDropdown();
             updateVoiceDropdown();
             updateVoiceGallery();
-        });
-
-        // Voice dropdown
-        document.getElementById('voice').addEventListener('change', function() {
-            updateVoiceInfo();
-        });
-
-        // Login form
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = this.querySelector('input[type="email"]').value;
-                const password = this.querySelector('input[type="password"]').value;
-                handleLogin(email, password);
-            });
-        }
-
-        // Signup form
-        const signupForm = document.getElementById('signupForm');
-        if (signupForm) {
-            signupForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const name = this.querySelector('input[type="text"]').value;
-                const email = this.querySelector('input[type="email"]').value;
-                const password = this.querySelector('input[type="password"]').value;
-                handleSignup(name, email, password);
-            });
-        }
-    }
-
-    // Load initial data from backend
-    async function loadInitialData() {
-        try {
-            // Load voices
-            const voicesResponse = await fetch('/api/voices');
-            const voicesData = await voicesResponse.json();
-            
-            if (voicesData.status === 'success') {
-                appData.voices = voicesData.voices;
-                populateLanguageDropdown();
-                updateVoiceDropdown();
-                updateVoiceGallery();
-            }
-
-            // Check auth status
-            const authResponse = await fetch('/api/auth/status');
-            const authData = await authResponse.json();
-            
-            if (authData.authenticated) {
-                appData.isLoggedIn = true;
-                appData.user = authData.user;
-                updateAuthUI();
-            }
-        } catch (error) {
-            console.error('Initialization error:', error);
-            showStatus('Error loading initial data', 'error');
-        }
-    }
-
-    // Populate language dropdown
-    function populateLanguageDropdown() {
-        const select = document.getElementById('language');
-        select.innerHTML = '<option value="">Select Language</option>';
-        
-        Object.keys(appData.voices).forEach(lang => {
-            const option = document.createElement('option');
-            option.value = lang;
-            option.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
-            select.appendChild(option);
-        });
-    }
-
-    // Update voice dropdown based on selected language
-    function updateVoiceDropdown() {
-        const language = document.getElementById('language').value;
-        const select = document.getElementById('voice');
-        select.innerHTML = '<option value="">Select Voice</option>';
-        
-        if (!language || !appData.voices[language]) return;
-        
-        appData.voices[language].forEach(voice => {
-            const option = document.createElement('option');
-            option.value = voice.id;
-            option.textContent = voice.name;
-            select.appendChild(option);
-        });
-    }
-
-    // Update voice gallery display
-    function updateVoiceGallery(filter = 'all') {
-        const gallery = document.getElementById('voiceGallery');
-        gallery.innerHTML = '';
-        
-        const language = document.getElementById('language').value;
-        let voices = [];
-        
-        // Get voices for current language or all voices
-        if (language && appData.voices[language]) {
-            voices = appData.voices[language];
         } else {
-            Object.values(appData.voices).forEach(langVoices => {
-                voices.push(...langVoices);
-            });
+            throw new Error(voicesData.message || 'Failed to load voices');
         }
-        
-        // Apply filter
-        if (filter !== 'all') {
-            voices = voices.filter(voice => voice.gender === filter);
-        }
-        
-        // Display voices
-        voices.forEach(voice => {
-            const card = document.createElement('div');
-            card.className = 'voice-card';
-            card.innerHTML = `
-                <button class="preview-btn" onclick="playVoicePreview('${voice.id}')">
-                    <i class="fas fa-play"></i>
-                </button>
-                <h4>${voice.name}</h4>
-                <div class="voice-gender">${voice.gender || 'N/A'}</div>
-                <div class="voice-style">${voice.style || 'Standard'}</div>
-            `;
-            
-            card.addEventListener('click', () => selectVoice(voice));
-            gallery.appendChild(card);
+
+        // Check auth status with credentials
+        const authResponse = await fetch('/api/auth/status', {
+            credentials: 'include' // Important for session cookies
         });
-    }
-
-    // Select a voice from the gallery
-    function selectVoice(voice) {
-        // Find the voice's language if not already selected
-        if (!document.getElementById('language').value) {
-            for (const lang in appData.voices) {
-                if (appData.voices[lang].some(v => v.id === voice.id)) {
-                    document.getElementById('language').value = lang;
-                    updateVoiceDropdown();
-                    break;
-                }
-            }
+        
+        if (!authResponse.ok) {
+            throw new Error('Failed to check auth status');
         }
         
-        document.getElementById('voice').value = voice.id;
-        updateVoiceInfo();
+        const authData = await authResponse.json();
+        
+        if (authData.authenticated) {
+            appData.isLoggedIn = true;
+            appData.user = authData.user;
+            updateAuthUI();
+            updateUserMenu();
+        } else {
+            appData.isLoggedIn = false;
+            appData.user = null;
+            updateAuthUI();
+        }
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showStatus('Error loading initial data', 'error');
     }
+}
 
-    // Update voice information display
-    function updateVoiceInfo() {
-        const voiceId = document.getElementById('voice').value;
-        const language = document.getElementById('language').value;
-        
-        if (!voiceId || !language) return;
-        
-        const voice = appData.voices[language].find(v => v.id === voiceId);
-        if (!voice) return;
-        
-        const infoDiv = document.getElementById('voiceInfo');
-        infoDiv.innerHTML = `
-            <h3>Voice Details</h3>
-            <p>${voice.description || 'No description available'}</p>
-            <p><strong>Style:</strong> ${voice.style || 'N/A'}</p>
-            <p><strong>Best for:</strong> ${voice.use_cases ? voice.use_cases.join(', ') : 'N/A'}</p>
-            <p><strong>Age Range:</strong> ${voice.age_range || 'N/A'}</p>
-            <p><strong>Mood:</strong> ${voice.mood || 'N/A'}</p>
-        `;
-        infoDiv.style.display = 'block';
-    }
-
-    // Handle login
-    async function handleLogin(email, password) {
+// Add these functions to your script
+async function handleLoginSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
     try {
         const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': getCSRFToken() // Add if using CSRF protection
+                'Content-Type': 'application/json'
             },
-            credentials: 'include', // Required for sessions
+            credentials: 'include',
             body: JSON.stringify({ email, password })
         });
         
-        if (response.status === 401) {
-            throw new Error('Invalid email or password');
-        }
-        
         const data = await response.json();
-        // ... rest of your handling
+        
+        if (data.status === 'success') {
+            appData.isLoggedIn = true;
+            appData.user = data.user;
+            updateAuthUI();
+            showStatus('Login successful!', 'success');
+            closeModal('loginModal');
+            loadInitialData();
+        } else {
+            throw new Error(data.message || 'Login failed');
+        }
     } catch (error) {
-        // Show error to user
+        showStatus(error.message, 'error');
     }
 }
 
-    // Handle signup
-    async function handleSignup(name, email, password) {
-        try {
-            const response = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (data.status === 'success') {
-                showStatus('Account created! Please login.', 'success');
-                closeModal('signupModal');
-                openModal('loginModal');
-            } else {
-                throw new Error(data.message || 'Signup failed');
-            }
-        } catch (error) {
-            showStatus(error.message, 'error');
-        }
+async function handleSignupSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        showStatus('Passwords do not match', 'error');
+        return;
     }
-
-    // Update auth UI
-    function updateAuthUI() {
-        const authButton = document.getElementById('authButton');
-        
-        if (appData.isLoggedIn && appData.user) {
-            authButton.innerHTML = `
-                <i class="fas fa-user-circle"></i>
-                ${appData.user.name || 'User'}
-                <i class="fas fa-caret-down"></i>
-            `;
-        } else {
-            authButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-        }
-    }
-
-    // Generate TTS
-    async function generateTTS() {
-        const text = document.getElementById('text').value.trim();
-        const language = document.getElementById('language').value;
-        const voiceId = document.getElementById('voice').value;
-        
-        if (!text) {
-            showStatus('Please enter text to convert', 'error');
-            return;
-        }
-        
-        if (!language || !voiceId) {
-            showStatus('Please select both language and voice', 'error');
-            return;
-        }
-
-        showStatus('Generating speech...', 'success');
-        document.getElementById('generateBtn').disabled = true;
-
-        try {
-            const response = await fetch('/api/generate_tts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    text,
-                    language,
-                    voice_id: voiceId,
-                    speed: document.getElementById('speed').value,
-                    pitch: document.getElementById('pitch').value,
-                    use_ssml: document.getElementById('use_ssml').checked
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                const audioPlayer = document.getElementById('audioPlayer');
-                audioPlayer.src = data.audio_url;
-                audioPlayer.style.display = 'block';
-                showStatus('Speech generated!', 'success');
-            } else {
-                throw new Error(data.message || 'Generation failed');
-            }
-        } catch (error) {
-            console.error('TTS Generation Error:', error);
-            showStatus(error.message, 'error');
-        } finally {
-            document.getElementById('generateBtn').disabled = false;
-        }
-    }
-
-    // Handle file upload
-    async function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        document.getElementById('fileName').textContent = file.name;
-        
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            const response = await fetch('/api/process-file', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const data = await response.json();
-            
-            if (data.status === 'success') {
-                document.getElementById('text').value = data.text;
-                updateCharCount();
-                showStatus('File processed successfully', 'success');
-            } else {
-                throw new Error(data.message || 'File processing failed');
-            }
-        } catch (error) {
-            console.error('File upload error:', error);
-            showStatus(error.message, 'error');
-        }
-    }
-
-    // Play voice preview
-    async function playVoicePreview(voiceId) {
-        try {
-            const audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.src = `/api/voice-preview/${voiceId}`;
-            audioPlayer.style.display = 'block';
-            audioPlayer.play();
-        } catch (error) {
-            console.error('Error playing preview:', error);
-            showStatus('Could not play preview', 'error');
-        }
-    }
-
-    // Update character count
-    function updateCharCount() {
-        const text = document.getElementById('text').value;
-        const counter = document.getElementById('charCount');
-        counter.textContent = text.length;
-        counter.className = text.length > 5000 ? 'char-counter limit-exceeded' : 'char-counter';
-    }
-
-    // Show status message
-    function showStatus(message, type) {
-        const statusElement = document.getElementById('status');
-        statusElement.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            ${message}
-        `;
-        statusElement.className = `status ${type}`;
-        statusElement.style.display = 'block';
-        
-        setTimeout(() => {
-            statusElement.style.display = 'none';
-        }, 5000);
-    }
-
-    // Global utility functions
-    window.openModal = function(modalId) {
-        document.getElementById(modalId).style.display = 'block';
-    };
-
-    window.closeModal = function(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    };
-
-    window.toggleUserMenu = function() {
-        const menu = document.getElementById('userMenu');
-        menu.classList.toggle('show');
-        
-        document.addEventListener('click', function closeMenu(e) {
-            if (!menu.contains(e.target)) {
-                menu.classList.remove('show');
-                document.removeEventListener('click', closeMenu);
-            }
+    
+    try {
+        const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ name, email, password })
         });
-    };
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            showStatus('Account created! Please login.', 'success');
+            closeModal('signupModal');
+            openModal('loginModal');
+        } else {
+            throw new Error(data.message || 'Signup failed');
+        }
+    } catch (error) {
+        showStatus(error.message, 'error');
+    }
+}
 
-    window.logout = async function() {
-        try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+// Populate language dropdown
+function populateLanguageDropdown() {
+    const select = document.getElementById('language');
+    select.innerHTML = '<option value="">Select Language</option>';
+    
+    if (!appData.voices) return;
+    
+    Object.keys(appData.voices).forEach(lang => {
+        const option = document.createElement('option');
+        option.value = lang;
+        option.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
+        select.appendChild(option);
+    });
+    
+    // Refresh Select2
+    $(select).trigger('change');
+}
+
+// Update voice dropdown based on selected language
+function updateVoiceDropdown() {
+    const language = document.getElementById('language').value;
+    const select = document.getElementById('voice');
+    select.innerHTML = '<option value="">Select Voice</option>';
+    
+    if (!language || !appData.voices[language]) return;
+    
+    appData.voices[language].forEach(voice => {
+        const option = document.createElement('option');
+        option.value = voice.id;
+        option.textContent = voice.name;
+        select.appendChild(option);
+    });
+    
+    // Refresh Select2
+    $(select).trigger('change');
+}
+
+// Update voice gallery display
+function updateVoiceGallery(filter = 'all') {
+    const gallery = document.getElementById('voiceGallery');
+    if (!gallery) return;
+    
+    gallery.innerHTML = '';
+    
+    const language = document.getElementById('language').value;
+    let voices = [];
+    
+    // Get voices for current language or all voices
+    if (language && appData.voices[language]) {
+        voices = appData.voices[language];
+    } else {
+        Object.values(appData.voices).forEach(langVoices => {
+            voices.push(...langVoices);
+        });
+    }
+    
+    // Apply filter
+    if (filter !== 'all') {
+        voices = voices.filter(voice => voice.gender === filter);
+    }
+    
+    // Display voices or show message if none
+    if (voices.length === 0) {
+        gallery.innerHTML = '<div class="no-voices">No voices available for this selection</div>';
+        return;
+    }
+    
+    voices.forEach(voice => {
+        const card = document.createElement('div');
+        card.className = 'voice-card';
+        card.innerHTML = `
+            <button class="preview-btn" onclick="playVoicePreview('${voice.id}')">
+                <i class="fas fa-play"></i>
+            </button>
+            <h4>${voice.name}</h4>
+            <div class="voice-gender">${voice.gender || 'N/A'}</div>
+            <div class="voice-style">${voice.style || 'Standard'}</div>
+        `;
+        
+        card.addEventListener('click', () => selectVoice(voice));
+        gallery.appendChild(card);
+    });
+}
+
+// Select a voice from the gallery
+function selectVoice(voice) {
+    // Find the voice's language if not already selected
+    if (!document.getElementById('language').value) {
+        for (const lang in appData.voices) {
+            if (appData.voices[lang].some(v => v.id === voice.id)) {
+                document.getElementById('language').value = lang;
+                updateVoiceDropdown();
+                break;
+            }
+        }
+    }
+    
+    document.getElementById('voice').value = voice.id;
+    updateVoiceInfo();
+    
+    // Refresh Select2
+    $('#voice').trigger('change');
+}
+
+// Update voice information display
+function updateVoiceInfo() {
+    const voiceId = document.getElementById('voice').value;
+    const language = document.getElementById('language').value;
+    
+    if (!voiceId || !language) return;
+    
+    const voice = appData.voices[language].find(v => v.id === voiceId);
+    if (!voice) return;
+    
+    const infoDiv = document.getElementById('voiceInfo');
+    infoDiv.innerHTML = `
+        <h3>Voice Details</h3>
+        <p>${voice.description || 'No description available'}</p>
+        <p><strong>Style:</strong> ${voice.style || 'N/A'}</p>
+        <p><strong>Best for:</strong> ${voice.use_cases ? voice.use_cases.join(', ') : 'N/A'}</p>
+        <p><strong>Age Range:</strong> ${voice.age_range || 'N/A'}</p>
+        <p><strong>Mood:</strong> ${voice.mood || 'N/A'}</p>
+    `;
+    infoDiv.style.display = 'block';
+}
+
+// Handle login
+async function handleLogin(email, password) {
+    try {
+        showStatus('Logging in...', 'success');
+        
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // Important for session cookies
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            appData.isLoggedIn = true;
+            appData.user = data.user;
+            updateAuthUI();
+            showStatus('Login successful!', 'success');
+            closeModal('loginModal');
+            
+            // Reload voice data in case user has different permissions
+            loadInitialData();
+        } else {
+            throw new Error(data.message || 'Login failed');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showStatus(error.message, 'error');
+    }
+}
+
+// Handle signup
+async function handleSignup(name, email, password) {
+    try {
+        showStatus('Creating account...', 'success');
+        
+        const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // Important for session cookies
+            body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            showStatus('Account created! Please login.', 'success');
+            closeModal('signupModal');
+            openModal('loginModal');
+        } else {
+            throw new Error(data.message || 'Signup failed');
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        showStatus(error.message, 'error');
+    }
+}
+
+// Update auth UI to not disable generate button
+function updateAuthUI() {
+    const authButton = document.getElementById('authButton');
+    
+    if (appData.isLoggedIn && appData.user) {
+        authButton.innerHTML = `
+            <i class="fas fa-user-circle"></i>
+            ${appData.user.name || 'User'}
+            <i class="fas fa-caret-down"></i>
+        `;
+        updateUserMenu();
+    } else {
+        authButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+    }
+}
+
+// Update user menu
+function updateUserMenu() {
+    const userMenu = document.getElementById('userMenu');
+    if (!userMenu) return;
+    
+    userMenu.innerHTML = `
+        <div class="user-menu-item" onclick="openModal('profileModal')">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </div>
+        <div class="user-menu-item" onclick="openModal('pricingModal')">
+            <i class="fas fa-crown"></i>
+            <span>Upgrade</span>
+        </div>
+        <div class="user-menu-divider"></div>
+        <div class="user-menu-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Log Out</span>
+        </div>
+    `;
+}
+
+// Generate TTS
+// Modify the generateTTS function to work without login
+async function generateTTS() {
+    const text = document.getElementById('text').value.trim();
+    const language = document.getElementById('language').value;
+    const voiceId = document.getElementById('voice').value;
+    const speed = document.getElementById('speed').value;
+    const pitch = document.getElementById('pitch').value;
+    const use_ssml = document.getElementById('use_ssml').checked;
+    
+    if (!text) {
+        showStatus('Please enter text to convert', 'error');
+        return;
+    }
+    
+    if (!language || !voiceId) {
+        showStatus('Please select both language and voice', 'error');
+        return;
+    }
+
+    showStatus('Generating speech...', 'success');
+    document.getElementById('generateBtn').disabled = true;
+
+    try {
+        const response = await fetch('/api/generate_tts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                text,
+                language,
+                voice_id: voiceId,
+                speed,
+                pitch,
+                use_ssml
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = data.audio_url;
+            audioPlayer.style.display = 'block';
+            showStatus('Speech generated!', 'success');
+            
+            // Update voice info if available
+            if (data.voice_metadata) {
+                const infoDiv = document.getElementById('voiceInfo');
+                infoDiv.innerHTML = `
+                    <h3>Voice Details</h3>
+                    <p>${data.voice_metadata.description || 'No description available'}</p>
+                    <p><strong>Style:</strong> ${data.voice_metadata.style || 'N/A'}</p>
+                    <p><strong>Best for:</strong> ${data.voice_metadata.use_cases ? data.voice_metadata.use_cases.join(', ') : 'N/A'}</p>
+                    <p><strong>Age Range:</strong> ${data.voice_metadata.age_range || 'N/A'}</p>
+                    <p><strong>Mood:</strong> ${data.voice_metadata.mood || 'N/A'}</p>
+                `;
+                infoDiv.style.display = 'block';
+            }
+        } else {
+            throw new Error(data.message || 'Generation failed');
+        }
+    } catch (error) {
+        console.error('TTS Generation Error:', error);
+        showStatus(error.message, 'error');
+    } finally {
+        document.getElementById('generateBtn').disabled = false;
+    }
+}
+
+// Handle file upload
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    document.getElementById('fileName').textContent = file.name;
+    
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/process-file', {
+            method: 'POST',
+            credentials: 'include', // Important for session cookies
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            document.getElementById('text').value = data.text;
+            updateCharCount();
+            showStatus('File processed successfully', 'success');
+        } else {
+            throw new Error(data.message || 'File processing failed');
+        }
+    } catch (error) {
+        console.error('File upload error:', error);
+        showStatus(error.message, 'error');
+    }
+}
+
+// Play voice preview
+async function playVoicePreview(voiceId) {
+    try {
+        const audioPlayer = document.getElementById('audioPlayer');
+        audioPlayer.src = `/api/voice-preview/${voiceId}`;
+        audioPlayer.style.display = 'block';
+        await audioPlayer.play();
+    } catch (error) {
+        console.error('Error playing preview:', error);
+        showStatus('Could not play preview', 'error');
+    }
+}
+
+// Update character count
+function updateCharCount() {
+    const text = document.getElementById('text').value;
+    const counter = document.getElementById('charCount');
+    counter.textContent = text.length;
+    counter.className = text.length > 5000 ? 'char-counter limit-exceeded' : 'char-counter';
+}
+
+// Show status message
+function showStatus(message, type) {
+    const statusElement = document.getElementById('status');
+    statusElement.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        ${message}
+    `;
+    statusElement.className = `status ${type}`;
+    statusElement.style.display = 'block';
+    
+    setTimeout(() => {
+        statusElement.style.display = 'none';
+    }, 5000);
+}
+
+// Global utility functions
+window.openModal = function(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+};
+
+window.closeModal = function(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+};
+
+window.toggleUserMenu = function() {
+    const menu = document.getElementById('userMenu');
+    menu.classList.toggle('show');
+    
+    document.addEventListener('click', function closeMenu(e) {
+        if (!menu.contains(e.target) && e.target.id !== 'authButton') {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeMenu);
+        }
+    });
+};
+
+window.logout = async function() {
+    try {
+        const response = await fetch('/api/auth/logout', { 
+            method: 'POST',
+            credentials: 'include' // Important for session cookies
+        });
+        const data = await response.json();
+        
+        if (data.status === 'success') {
             appData.isLoggedIn = false;
             appData.user = null;
             updateAuthUI();
             showStatus('Logged out successfully', 'success');
             closeModal('profileModal');
-        } catch (error) {
-            showStatus('Logout failed', 'error');
+        } else {
+            throw new Error(data.message || 'Logout failed');
         }
-    };
+    } catch (error) {
+        showStatus(error.message, 'error');
+    }
+};
 
-    window.filterVoices = function(gender, event) {
-        event.preventDefault();
-        document.querySelectorAll('.voice-filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-        updateVoiceGallery(gender);
-    };
+window.filterVoices = function(gender, event) {
+    event.preventDefault();
+    document.querySelectorAll('.voice-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    updateVoiceGallery(gender);
+};
 
-    window.toggleDarkMode = function() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.getElementById('darkModeIcon');
-        icon.classList.toggle('fa-moon');
-        icon.classList.toggle('fa-sun');
-    };
+window.toggleDarkMode = function() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('darkModeIcon');
+    icon.classList.toggle('fa-moon');
+    icon.classList.toggle('fa-sun');
+};
+
+window.signInWithGoogle = function() {
+    window.location.href = '/api/auth/google';
+};
+
+window.signInWithGitHub = function() {
+    window.location.href = '/api/auth/github';
+};
+
+// Add event listeners for language and voice dropdown changes
+document.getElementById('language').addEventListener('change', function() {
+    updateVoiceDropdown();
+    updateVoiceGallery();
+});	
 </script>
 </body>
 </html>

@@ -23,6 +23,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import hmac
 import re
+from authlib.integrations.flask_client import OAuth
+from flask_wtf.csrf import CSRFProtect
+from dotenv import load_dotenv
 
 # Configure logging
 logging.basicConfig(
@@ -31,6 +34,9 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
 
 # Configuration
 class Config:
@@ -41,32 +47,81 @@ class Config:
     FREE_CHAR_LIMIT = 1000
     PRO_CHAR_LIMIT = 5000
     FREE_DAILY_CONVERSIONS = 5
+    WTF_CSRF_ENABLED = True
+    WTF_CSRF_SECRET_KEY = secrets.token_hex(32)
+    SESSION_TYPE = 'filesystem'
+    SESSION_FILE_DIR = './flask_session'
+    PERMANENT_SESSION_LIFETIME = 3600  # 1 hour
+    SESSION_COOKIE_SECURE = True  # Important for production
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+    GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
+    GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
 CORS(app, supports_credentials=True, resources={
     r"/api/*": {
-        "origins": ["http://localhost:5000", "https://yourdomain.com"],
-        "methods": ["GET", "POST", "PUT", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "expose_headers": ["Content-Type"],
-        "supports_credentials": True
+        "origins": [
+            "http://localhost:5000",
+            "http://127.0.0.1:5000",            
+            "http://localhost:3000",  # If you have a frontend dev server
+            "https://tts.skyinfinitetech.com"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": [
+            "Content-Type", 
+            "Authorization",
+            "X-CSRFToken",
+            "X-Requested-With"
+        ],
+        "expose_headers": [
+            "Content-Type",
+            "X-CSRFToken",
+            "Content-Disposition"  # Useful for file downloads
+        ],
+        "supports_credentials": True,
+        "max_age": 86400  # 24-hour preflight cache
     }
 })
+
+# After app creation, add:
+csrf = CSRFProtect(app)
+oauth = OAuth(app)
+
+# Configure OAuth providers
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),  # Get from environment variables
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
+github = oauth.register(
+    name='github',
+    client_id=os.getenv('GITHUB_CLIENT_ID'),
+    client_secret=os.getenv('GITHUB_CLIENT_SECRET'),
+    access_token_url='https://github.com/login/oauth/access_token',
+    authorize_url='https://github.com/login/oauth/authorize',
+    api_base_url='https://api.github.com/',
+    client_kwargs={
+        'scope': 'user:email'
+    }
+)
 
 # Required configuration for Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './flask_session'
-app.config['SECRET_KEY'] = os.urandom(24).hex()  # Generate a secure secret key
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour session lifetime
 
 # Initialize Flask-Session
 Session(app)
-
-# Example user database setup
-users_db = {}
-subscriptions_db = {}
 
 # Required helper functions
 def validate_email(email):
@@ -869,7 +924,19 @@ def login_required(f):
 # Routes
 @app.route('/')
 def home():
-    return render_template('index.html')    
+    return render_template('index.html')
+
+@app.route('/api/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'status': 'error', 'message': 'Resource not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({'status': 'error', 'message': 'Internal server error'}), 500    
 
 @app.route('/api/auth/status', methods=['GET'])
 def auth_status():
@@ -888,6 +955,79 @@ def auth_status():
                 }
             })
     return jsonify({'status': 'success', 'authenticated': False})
+    
+# Add these new routes
+@app.route('/api/auth/google')
+def google_login():
+    redirect_uri = url_for('google_authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/api/auth/google/authorize')
+def google_authorize():
+    token = google.authorize_access_token()
+    user_info = google.get('userinfo').json()
+    
+    # Check if user exists
+    user = next((u for u in users_db.values() if u['email'] == user_info['email']), None)
+    
+    if not user:
+        # Create new user
+        user_id = str(uuid.uuid4())
+        users_db[user_id] = {
+            'id': user_id,
+            'email': user_info['email'],
+            'name': user_info.get('name', 'Google User'),
+            'password_hash': None,  # No password for OAuth users
+            'created_at': datetime.utcnow().isoformat()
+        }
+        subscriptions_db[user_id] = 'free'
+        user = users_db[user_id]
+    
+    # Create session
+    session.clear()
+    session['user_id'] = user['id']
+    session['logged_in'] = True
+    
+    return redirect(url_for('home'))
+
+@app.route('/api/auth/github')
+def github_login():
+    redirect_uri = url_for('github_authorize', _external=True)
+    return github.authorize_redirect(redirect_uri)
+
+@app.route('/api/auth/github/authorize')
+def github_authorize():
+    token = github.authorize_access_token()
+    resp = github.get('user')
+    user_info = resp.json()
+    
+    # Get primary email (GitHub requires separate request)
+    email_resp = github.get('user/emails')
+    emails = email_resp.json()
+    primary_email = next(e['email'] for e in emails if e['primary'])
+    
+    # Check if user exists
+    user = next((u for u in users_db.values() if u['email'] == primary_email), None)
+    
+    if not user:
+        # Create new user
+        user_id = str(uuid.uuid4())
+        users_db[user_id] = {
+            'id': user_id,
+            'email': primary_email,
+            'name': user_info.get('name', 'GitHub User'),
+            'password_hash': None,  # No password for OAuth users
+            'created_at': datetime.utcnow().isoformat()
+        }
+        subscriptions_db[user_id] = 'free'
+        user = users_db[user_id]
+    
+    # Create session
+    session.clear()
+    session['user_id'] = user['id']
+    session['logged_in'] = True
+    
+    return redirect(url_for('home'))    
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():
@@ -906,7 +1046,7 @@ def login():
         # Find user
         user = None
         for u in users_db.values():
-            if secure_compare(u['email'], email):
+            if u['email'].lower() == email.lower():  # Case-insensitive email comparison
                 user = u
                 break
 
@@ -919,18 +1059,26 @@ def login():
         session['user_id'] = user['id']
         session['logged_in'] = True
 
-        return jsonify({
+        response = jsonify({
             'status': 'success',
             'user': {
                 'id': user['id'],
                 'email': user['email'],
                 'name': user['name'],
-                'subscription': subscriptions_db.get(user['id'], 'free')
+                'subscription': subscriptions_db.get(user['id'], 'free'),
+                'created_at': user['created_at']
             }
         })
+        
+        # Ensure CORS headers are set
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5000')  # Update with your domain
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        
+        return response
 
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        logger.error(f"Login error: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Login failed'}), 500
 
 # Helper functions needed:
 def validate_email(email):
@@ -1000,6 +1148,11 @@ def signup():
         }
         subscriptions_db[user_id] = 'free'
 
+        # Automatically log in the user
+        session.clear()
+        session['user_id'] = user_id
+        session['logged_in'] = True
+
         return jsonify({
             'status': 'success',
             'user': {
@@ -1012,7 +1165,8 @@ def signup():
         }), 201
 
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        logger.error(f"Signup error: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Registration failed'}), 500
 
 @app.route('/api/auth/logout', methods=['POST'])
 def logout():
@@ -1226,8 +1380,8 @@ def voices_debug():
     return f"<pre>{pformat(VOICES)}</pre>", 200
 
 @app.route('/api/generate_tts', methods=['POST'])
-@login_required
-def generate_tts():
+@csrf.exempt
+def generate_tts():  # Removed @login_required decorator
     if not request.is_json:
         return jsonify({'status': 'error', 'message': 'Content-Type must be application/json'}), 400
 
@@ -1242,34 +1396,12 @@ def generate_tts():
     if not text or not language or not voice_id:
         return jsonify({'status': 'error', 'message': 'Text, language and voice_id are required'}), 400
     
-    user_id = session['user_id']
-    subscription = subscriptions_db.get(user_id, 'free')
-    usage = usage_db.get(user_id, {'chars_used': 0, 'conversions_today': 0, 'last_conversion_date': None})
-    
-    # Check daily conversion limit for free users
-    today = datetime.now().date()
-    if usage['last_conversion_date'] != str(today):
-        usage['conversions_today'] = 0
-        usage['last_conversion_date'] = str(today)
-    
-    if subscription == 'free' and usage['conversions_today'] >= app.config['FREE_DAILY_CONVERSIONS']:
+    # For anonymous users, apply basic limits
+    char_limit = 1000  # Example limit for anonymous users
+    if len(text) > char_limit:
         return jsonify({
             'status': 'error',
-            'message': f'Free plan limited to {app.config["FREE_DAILY_CONVERSIONS"]} conversions per day',
-            'code': 'conversion_limit_exceeded'
-        }), 429
-    
-    # Check character limit
-    char_limit = {
-        'free': app.config['FREE_CHAR_LIMIT'],
-        'pro': app.config['PRO_CHAR_LIMIT'],
-        'enterprise': None
-    }.get(subscription)
-    
-    if char_limit and len(text) > char_limit:
-        return jsonify({
-            'status': 'error',
-            'message': f'Text exceeds {char_limit} character limit for {subscription} plan',
+            'message': f'Text exceeds {char_limit} character limit for anonymous usage',
             'max_limit': char_limit,
             'code': 'char_limit_exceeded'
         }), 400
@@ -1303,24 +1435,12 @@ def generate_tts():
         if save_result['status'] != 'success':
             raise Exception(save_result['message'])
 
-        # Update usage
-        usage['chars_used'] += len(text)
-        usage['conversions_today'] += 1
-        usage_db[user_id] = usage
-
         response = {
             'status': 'success',
             'audio_url': save_result['audio_url'],
             'voice_used': selected_voice['name'],
             'language': language,
             'service': service,
-            'usage': {
-                'chars_used': usage['chars_used'],
-                'conversions_today': usage['conversions_today'],
-                'subscription': subscription,
-                'char_limit': char_limit,
-                'conversions_limit': app.config['FREE_DAILY_CONVERSIONS'] if subscription == 'free' else None
-            },
             'parameters': {
                 'speed': speed,
                 'pitch': pitch,
@@ -1465,6 +1585,6 @@ if __name__ == '__main__':
     if not os.path.exists(app.config['SESSION_FILE_DIR']):
         os.makedirs(app.config['SESSION_FILE_DIR'])
     
-    app.run(debug=True)
+    #app.run(debug=True)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

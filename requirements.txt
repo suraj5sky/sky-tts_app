@@ -16,3 +16,6 @@ boto3
 werkzeug
 psutil
 flask_session
+authlib
+flask_wtf
+dotenv
