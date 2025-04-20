@@ -44,7 +44,7 @@ class Config:
     STRIPE_PUBLIC_KEY = 'pk_test_your_stripe_public_key'
     STRIPE_SECRET_KEY = 'sk_test_your_stripe_secret_key'
     STRIPE_WEBHOOK_SECRET = 'whsec_your_webhook_secret'
-    FREE_CHAR_LIMIT = 1000
+    FREE_CHAR_LIMIT = 5000
     PRO_CHAR_LIMIT = 5000
     FREE_DAILY_CONVERSIONS = 5
     WTF_CSRF_ENABLED = True
@@ -1397,7 +1397,7 @@ def generate_tts():  # Removed @login_required decorator
         return jsonify({'status': 'error', 'message': 'Text, language and voice_id are required'}), 400
     
     # For anonymous users, apply basic limits
-    char_limit = 1000  # Example limit for anonymous users
+    char_limit = 5000  # Example limit for anonymous users
     if len(text) > char_limit:
         return jsonify({
             'status': 'error',
