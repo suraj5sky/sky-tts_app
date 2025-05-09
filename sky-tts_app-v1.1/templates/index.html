@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SKY TTS offers advanced AI-powered text-to-speech, speech-to-text, and voice cloning solutions.">
+    <meta name="keywords" content="text-to-speech, speech-to-text, voice cloning, AI, SKY TTS">
+    <meta property="og:title" content="SKY TTS - Advanced AI Speech Solutions">
+    <meta property="og:description" content="Transform words with cutting-edge AI for text-to-speech, speech-to-text, and voice cloning.">
+    <meta property="og:image" content="https://www.skytts.com/assets/og-image.jpg">
+    <meta property="og:url" content="https://www.skytts.com">
+    <title>SKY TTS - Advanced AI Speech Solutions</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/templates/styles.css">
+    <link rel="preload" href="https://images.unsplash.com/photo-1557683316-973673baf926" as="image">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center z-60">
+        <div class="animate-pulse flex flex-col items-center">
+            <div class="logo-animation">
+                <i class="fas fa-microphone-alt text-6xl text-blue-500 mb-4"></i>
+            </div>
+            <p class="text-lg font-medium tracking-wider">Loading SKY TTS...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="navbar bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg shadow-sm sticky top-0 z-50 transition-all duration-300" aria-label="Main navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center space-x-3 logo-container">
+                    <i class="fas fa-microphone-alt text-5xl gradient-icon animate-pulse" aria-hidden="true"></i>
+                    <h1 class="text-3xl font-bold tracking-tight">SKY <span class="gradient-text">TTS</span></h1>
+                </div>
+                <nav class="flex items-center space-x-6">
+                    <a href="#home" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-500 text-sm font-medium transition-colors" aria-label="Home">Home</a>
+                    <a href="#features" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-500 text-sm font-medium transition-colors" aria-label="Features">Features</a>
+                    <a href="#pricing" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-500 text-sm font-medium transition-colors" aria-label="Pricing">Pricing</a>
+                    <a href="#about" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-500 text-sm font-medium transition-colors" aria-label="About">About</a>
+                    <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" data-tippy-content="Toggle dark mode" aria-label="Toggle dark mode">
+                        <i id="darkModeIcon" class="fas fa-moon text-lg text-gray-600 dark:text-gray-300 transition-transform"></i>
+                    </button>
+                    <div id="authButtons" class="flex space-x-3">
+                        <button id="loginButton" class="btn btn-outline px-4 py-2 rounded-full text-sm font-medium transition-all" aria-label="Login">
+                            <i class="fas fa-sign-in-alt mr-2" aria-hidden="true"></i> Login
+                        </button>
+                        <button id="signupButton" class="btn btn-primary px-4 py-2 rounded-full text-sm font-medium transition-all" aria-label="Sign Up">
+                            <i class="fas fa-user-plus mr-1" aria-hidden="true"></i> Sign Up
+                        </button>
+                    </div>
+                    <div id="userMenu" class="hidden relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 focus:outline-none text-sm font-medium transition-colors" aria-haspopup="true" aria-expanded="false">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                                <i class="fas fa-user text-blue-500 dark:text-blue-300" aria-hidden="true"></i>
+                            </div>
+                            <span id="userName">Profile</span>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl z-50 profile-card border border-gray-100 dark:border-gray-700 transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+                            <div class="p-4 border-b border-gray-100 dark:border-gray-700">
+                                <p class="text-sm font-semibold">Welcome, <span id="dropdownName" class="text-blue-500">User</span></p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 truncate"><span id="dropdownEmail">user@example.com</span></p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Plan: <span id="dropdownPlan" class="font-medium">Free</span></p>
+                            </div>
+                            <div class="p-2">
+                                <button id="profileBtn" class="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center" role="menuitem">
+                                    <i class="fas fa-user-edit mr-3 text-gray-500"></i> Edit Profile
+                                </button>
+                                <button id="logoutBtn" class="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center" role="menuitem">
+                                    <i class="fas fa-sign-out-alt mr-3 text-gray-500"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-32 relative overflow-hidden" aria-labelledby="heroText">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30 z-0"></div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <h2 id="heroText" class="hero-title text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    Transform <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300"> Your Ideas with </span> SKY TTS
+                </h2>
+                <p class="hero-subtitle mt-4 text-xl md:text-3xl max-w-3xl mx-auto mb-8">
+                    Real voices, virtual power – unlock the future of voice with SKY TTS.
+                </p>
+                <div class="mt-12 flex justify-center">
+                    <div class="flex items-center space-x-4 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20">
+                        <div class="flex -space-x-2">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                        </div>
+                        <p class="text-sm font-medium">Trusted by 10,000+ users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 dark:from-gray-900 to-transparent z-10"></div>
+        </section>
+
+        <!-- Features Navigation Section -->
+        <section id="features" class="py-20 bg-gray-50 dark:bg-gray-900/50" aria-labelledby="features-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 rounded-full mb-4">FEATURES</span>
+                    <h2 id="features-heading" class="section-title text-4xl font-bold mb-4">Powerful AI Speech Tools</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Everything you need to transform text to speech and speech to text with unmatched quality.</p>
+                </div>
+                <div class="feature-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <a href="#tts" class="feature-card group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700" aria-label="Text-to-Speech">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30 mb-6 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
+                            <i class="feature-icon fas fa-microphone-alt text-3xl text-blue-500" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-3">Text-to-Speech</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Convert text to natural voices in multiple languages with human-like quality.</p>
+                        <div class="mt-6 text-blue-500 flex items-center group-hover:translate-x-1 transition-transform">
+                            <span class="text-sm font-medium">Try it now</span>
+                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </div>
+                    </a>
+                    <a href="#stt" class="feature-card group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700" aria-label="Speech-to-Text">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/30 mb-6 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 transition-colors">
+                            <i class="feature-icon fas fa-headphones text-3xl text-purple-500" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-3">Speech-to-Text</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Transcribe audio with industry-leading accuracy and support for multiple languages.</p>
+                        <div class="mt-6 text-purple-500 flex items-center group-hover:translate-x-1 transition-transform">
+                            <span class="text-sm font-medium">Try it now</span>
+                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </div>
+                    </a>
+                    <a href="#voice-cloning" class="feature-card group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700" aria-label="Voice Cloning">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-pink-50 dark:bg-pink-900/30 mb-6 group-hover:bg-pink-100 dark:group-hover:bg-pink-900/50 transition-colors">
+                            <i class="feature-icon fas fa-clone text-3xl text-pink-500" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-3">Voice Cloning</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Create custom voices that sound just like you or anyone else (Coming Soon).</p>
+                        <div class="mt-6 text-pink-500 flex items-center group-hover:translate-x-1 transition-transform">
+                            <span class="text-sm font-medium">Coming soon</span>
+                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </div>
+                    </a>
+                    <a href="#analytics" class="feature-card group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700" aria-label="Usage Analytics">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-900/30 mb-6 group-hover:bg-teal-100 dark:group-hover:bg-teal-900/50 transition-colors">
+                            <i class="feature-icon fas fa-chart-bar text-3xl text-teal-500" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-3">Usage Analytics</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Track your API usage, limits, and performance metrics in real-time.</p>
+                        <div class="mt-6 text-teal-500 flex items-center group-hover:translate-x-1 transition-transform">
+                            <span class="text-sm font-medium">View analytics</span>
+                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- TTS Section -->
+        <section id="tts" class="py-20 bg-white dark:bg-gray-800" aria-labelledby="tts-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 rounded-full mb-4">TEXT-TO-SPEECH</span>
+                    <h2 id="tts-heading" class="section-title text-4xl font-bold mb-4">Convert Text to Natural Speech</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Type or upload your text and hear it come to life with our advanced AI voices.</p>
+                </div>
+                <form id="ttsForm" class="max-w-6xl mx-auto bg-gray-50 dark:bg-gray-700/30 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <div class="mb-6">
+                                <label for="language-select" class="block text-lg font-medium mb-3">Language</label>
+                                <select id="language-select" class="form-control w-full select2" required aria-label="Select language"></select>
+                            </div>
+                            <div class="mb-6">
+                                <label for="voice-select" class="block text-lg font-medium mb-3">Voice</label>
+                                <select id="voice-select" class="form-control w-full select2" required aria-label="Select voice"></select>
+                            </div>
+                            <div id="voiceInfo" class="hidden bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+                                <h4 class="font-semibold mb-4 text-lg">Voice Details</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Description</p>
+                                        <p class="font-medium" id="voiceDescription">Natural voice</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Style</p>
+                                        <p class="font-medium" id="voiceStyle">Neutral</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Use Cases</p>
+                                        <p class="font-medium" id="voiceUseCases">Narration, audiobooks</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Age Range</p>
+                                        <p class="font-medium" id="voiceAge">Adult</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Sample Text</p>
+                                    <p class="font-medium italic" id="voiceSample">Hello, this is a sample.</p>
+                                </div>
+                                <button id="playSampleBtn" class="btn btn-outline mt-6 px-6 py-3 rounded-full ripple w-full" data-tippy-content="Play voice sample" aria-label="Play voice sample">
+                                    <i class="fas fa-play mr-2" aria-hidden="true"></i> Play Sample
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <label for="tts-text" class="block text-lg font-medium">Text Input</label>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Characters: <span id="charCount">0</span>/<span id="charLimit">5000</span></span>
+                                </div>
+                                <textarea id="tts-text" class="form-control w-full h-48 p-4 rounded-lg" placeholder="Enter text to convert..." required aria-label="Text to convert"></textarea>
+                            </div>
+                            <div class="flex items-center justify-between mb-6">
+                                <label for="file-upload" class="file-input-label">
+                                    <i class="fas fa-upload mr-2"></i> Upload File
+                                    <span class="text-xs ml-2">(TXT, DOCX)</span>
+                                </label>
+                                <p id="fileName" class="text-sm text-gray-500 dark:text-gray-400">No file selected</p>
+                                <div id="fileLoader" class="hidden spinner border-t-4 border-blue-500 rounded-full w-6 h-6 animate-spin" aria-hidden="true"></div>
+                            </div>
+                            <input type="file" id="file-upload" accept=".txt,.docx" class="hidden">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="speed" class="block text-lg font-medium mb-3">Speed: <span id="speedValue" class="text-blue-500">1x</span></label>
+                                    <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1" class="w-full range-slider" aria-label="Speech speed">
+                                </div>
+                                <div>
+                                    <label for="pitch" class="block text-lg font-medium mb-3">Pitch: <span id="pitchValue" class="text-blue-500">1x</span></label>
+                                    <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1" class="w-full range-slider" aria-label="Speech pitch">
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4 mb-6">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="use_ssml" class="form-checkbox h-5 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500" aria-label="Use SSML">
+                                    <span class="text-gray-700 dark:text-gray-300">Use SSML</span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <button type="submit" id="generate-btn" class="btn btn-primary px-8 py-3 rounded-full ripple flex-1" data-tippy-content="Generate speech" aria-label="Generate speech">
+                                    <span class="mr-2">Generate</span>
+                                    <div id="generateLoader" class="hidden spinner border-t-4 border-white rounded-full w-5 h-5 animate-spin" aria-hidden="true"></div>
+                                </button>
+                            </div>
+                            
+                            <p id="ttsMessage" class="mt-3 text-sm text-gray-500 dark:text-gray-400"></p>
+                            
+                            <div class="mt-6">
+                                <audio id="audioPlayer" class="w-full hidden" controls aria-label="Audio playback"></audio>
+                                <div id="audioPlayerControls" class="hidden mt-4 flex space-x-3">
+                                    <a id="downloadBtn" class="btn btn-outline px-6 py-2 rounded-full inline-flex items-center ripple" download aria-label="Download audio">
+                                        <i class="fas fa-download mr-2"></i> Download
+                                    </a>
+                                    <button id="stopAudioBtn" class="btn btn-outline px-6 py-2 rounded-full inline-flex items-center ripple" aria-label="Stop audio">
+                                        <i class="fas fa-stop mr-2"></i> Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- STT Section -->
+        <section id="stt" class="py-20 bg-gray-50 dark:bg-gray-900/50" aria-labelledby="stt-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 rounded-full mb-4">SPEECH-TO-TEXT</span>
+                    <h2 id="stt-heading" class="section-title text-4xl font-bold mb-4">Convert Speech to Accurate Text</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Upload audio or record directly to get instant transcriptions with our advanced AI.</p>
+                </div>
+                <form id="sttForm" class="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <div class="flex space-x-4 mb-6">
+                                <button type="button" id="startRecordBtn" class="btn btn-primary px-6 py-3 rounded-full ripple flex-1" data-tippy-content="Start recording" aria-label="Start recording">
+                                    <i class="fas fa-microphone-alt mr-2" aria-hidden="true"></i> Start Recording
+                                </button>
+                                <button type="button" id="stopRecordBtn" class="hidden btn btn-danger px-6 py-3 rounded-full ripple flex-1" data-tippy-content="Stop recording" aria-label="Stop recording">
+                                    <i class="fas fa-stop mr-2" aria-hidden="true"></i> Stop Recording
+                                </button>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="audio-upload" class="file-input-label w-full text-center">
+                                    <i class="fas fa-upload mr-2"></i> Upload Audio
+                                    <span class="text-xs ml-2">(MP3, WAV)</span>
+                                </label>
+                                <input type="file" id="audio-upload" accept=".mp3,.wav" class="hidden">
+                                <p id="audioFileName" class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">No file selected</p>
+                                <div id="transcribeLoader" class="hidden mx-auto mt-2 spinner border-t-4 border-purple-500 rounded-full w-6 h-6 animate-spin" aria-hidden="true"></div>
+                            </div>
+                            
+                            <button type="submit" id="transcribe-btn" class="btn btn-primary w-full px-6 py-3 rounded-full disabled-btn ripple" disabled data-tippy-content="Transcribe audio" aria-label="Transcribe audio">
+                                <span class="mr-2">Transcribe Audio</span>
+                                <i class="fas fa-wave-square"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <label for="transcription" class="block text-lg font-medium mb-3">Transcription</label>
+                            <textarea id="transcription" class="form-control w-full h-64 p-4 rounded-lg" readonly aria-label="Transcription output" placeholder="Your transcription will appear here..."></textarea>
+                            <div class="mt-4 flex justify-end">
+                                <button type="button" id="copyTranscriptionBtn" class="btn btn-outline px-4 py-2 rounded-full text-sm ripple" aria-label="Copy transcription">
+                                    <i class="fas fa-copy mr-2"></i> Copy Text
+                                </button>
+                            </div>
+                            <p id="sttMessage" class="mt-3 text-sm text-gray-500 dark:text-gray-400"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Voice Cloning Section -->
+        <section id="voice-cloning" class="py-20 bg-white dark:bg-gray-800" aria-labelledby="voice-cloning-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-pink-600 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/50 rounded-full mb-4">COMING SOON</span>
+                    <h2 id="voice-cloning-heading" class="section-title text-4xl font-bold mb-4">Create Your Custom Voice</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Coming soon - Clone any voice with just a few samples of audio.</p>
+                </div>
+                <div class="max-w-4xl mx-auto bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-8 shadow-sm border border-pink-100 dark:border-pink-900/30">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <form id="cloneForm" class="space-y-6">
+                                <div>
+                                    <label for="clone-voice-name" class="block text-lg font-medium mb-3">Voice Name</label>
+                                    <input type="text" id="clone-voice-name" class="form-control w-full p-4 rounded-lg" placeholder="My Custom Voice" disabled aria-label="Voice name">
+                                </div>
+                                <div>
+                                    <label for="clone-audio-upload" class="block text-lg font-medium mb-3">Upload Audio Samples</label>
+                                    <input type="file" id="clone-audio-upload" accept=".mp3,.wav" class="form-control w-full p-4 rounded-lg" disabled multiple aria-label="Upload audio sample">
+                                    <p id="cloneAudioFileName" class="text-sm text-gray-500 dark:text-gray-400 mt-2">No files selected</p>
+                                </div>
+                                <div>
+                                    <label for="clone-voice-style" class="block text-lg font-medium mb-3">Voice Style</label>
+                                    <select id="clone-voice-style" class="form-control w-full p-4 rounded-lg" disabled aria-label="Select voice style">
+                                        <option value="natural">Natural</option>
+                                        <option value="friendly">Friendly</option>
+                                        <option value="professional">Professional</option>
+                                    </select>
+                                </div>
+                                <div class="pt-2">
+                                    <button type="submit" id="clone-btn" class="btn btn-primary w-full px-6 py-3 rounded-full disabled-btn ripple" disabled data-tippy-content="Voice cloning coming soon" aria-label="Clone voice">
+                                        <span class="mr-2">Join Waitlist</span>
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
+                                    <p id="cloneMessage" class="mt-3 text-sm text-gray-500 dark:text-gray-400"></p>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="flex flex-col items-center justify-center text-center p-6">
+                            <div class="relative mb-8">
+                                <div class="absolute inset-0 bg-pink-500/10 rounded-full animate-pulse"></div>
+                                <div class="relative w-40 h-40 flex items-center justify-center bg-pink-100 dark:bg-pink-900/20 rounded-full">
+                                    <i class="fas fa-clone text-5xl text-pink-500" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-semibold mb-3">Voice Cloning</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">We're working hard to bring you revolutionary voice cloning technology.</p>
+                            <div class="w-full max-w-xs mx-auto bg-white dark:bg-gray-700 rounded-full p-1 shadow-inner">
+                                <div class="h-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">Estimated launch: Q4 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage Analytics Section -->
+        <section id="analytics" class="py-20 bg-gray-50 dark:bg-gray-900/50" aria-labelledby="analytics-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-teal-600 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/50 rounded-full mb-4">USAGE</span>
+                    <h2 id="analytics-heading" class="section-title text-4xl font-bold mb-4">Your Usage Analytics</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Track your API usage and monitor your limits in real-time.</p>
+                </div>
+                
+                <div id="analytics-content" class="hidden max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="analytics-card bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Characters Used</h3>
+                                <i class="fas fa-font text-blue-400 text-xl"></i>
+                            </div>
+                            <p id="charsUsed" class="text-4xl font-bold text-blue-500">0</p>
+                            <div class="mt-4 h-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                                <div id="charsUsedBar" class="h-2 bg-blue-500 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="analytics-card bg-purple-50 dark:bg-purple-900/20 p-6 rounded-xl border border-purple-100 dark:border-purple-900/30">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Character Limit</h3>
+                                <i class="fas fa-tachometer-alt text-purple-400 text-xl"></i>
+                            </div>
+                            <p id="charLimit" class="text-4xl font-bold text-purple-500">5000</p>
+                            <div class="mt-4">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Resets on 1st of each day</span>
+                            </div>
+                        </div>
+                        <div class="analytics-card bg-pink-50 dark:bg-pink-900/20 p-6 rounded-xl border border-pink-100 dark:border-pink-900/30">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">API Calls</h3>
+                                <i class="fas fa-server text-pink-400 text-xl"></i>
+                            </div>
+                            <p id="apiCalls" class="text-4xl font-bold text-pink-500">0</p>
+                            <div class="mt-4">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Total requests this month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold mb-4">Usage History</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <p class="text-gray-500 dark:text-gray-400">Usage history chart will appear here</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <a href="#pricing" class="btn btn-primary px-8 py-3 rounded-full font-semibold ripple inline-flex items-center" data-tippy-content="Upgrade your plan" aria-label="Upgrade plan">
+                            <i class="fas fa-rocket mr-2"></i> Upgrade Plan
+                        </a>
+                    </div>
+                </div>
+                
+                <div id="analytics-login-prompt" class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                        <i class="fas fa-lock text-blue-500 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">View Your Analytics</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Sign in to access your usage statistics and track your API consumption.</p>
+                    <button id="login-prompt-btn" class="btn btn-primary px-8 py-3 rounded-full ripple w-full" aria-label="Login to view analytics">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="py-20 bg-white dark:bg-gray-800" aria-labelledby="pricing-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/50 rounded-full mb-4">PRICING</span>
+                    <h2 id="pricing-heading" class="section-title text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Choose the perfect plan for your needs. No hidden fees, cancel anytime.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="pricing-card group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 relative">
+                        <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">POPULAR</div>
+                        <h3 class="text-2xl font-semibold mb-2">Free</h3>
+                        <p class="text-4xl font-bold mb-4">$0<span class="text-lg font-normal text-gray-500 dark:text-gray-400">/day</span></p>
+                        <ul class="space-y-3 text-gray-600 dark:text-gray-400 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>5,000 characters/day</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Basic voices</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-times text-gray-300 mt-1 mr-2"></i>
+                                <span class="text-gray-400 dark:text-gray-500">No voice cloning</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-times text-gray-300 mt-1 mr-2"></i>
+                                <span class="text-gray-400 dark:text-gray-500">Standard support</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-outline btn-plan-free w-full px-6 py-3 rounded-full ripple group-hover:bg-blue-500 group-hover:text-white transition-colors" data-tippy-content="Select Free plan" aria-label="Select Free plan">
+                            Current Plan
+                        </button>
+                    </div>
+                    
+                    <div class="pricing-card group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-blue-500 dark:border-blue-500 relative">
+                        <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">BEST VALUE</div>
+                        <h3 class="text-2xl font-semibold mb-2">Pro</h3>
+                        <p class="text-4xl font-bold mb-4">$4.99<span class="text-lg font-normal text-gray-500 dark:text-gray-400">/day</span></p>
+                        <ul class="space-y-3 text-gray-600 dark:text-gray-400 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>50,000 characters/day</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Premium voices</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Basic voice cloning</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Priority support</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-primary btn-plan-pro w-full px-6 py-3 rounded-full ripple" data-tippy-content="Select Pro plan" aria-label="Select Pro plan">
+                            Upgrade to Pro
+                        </button>
+                    </div>
+                    
+                    <div class="pricing-card group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-500">
+                        <h3 class="text-2xl font-semibold mb-2">Enterprise</h3>
+                        <p class="text-4xl font-bold mb-4">Custom<span class="text-lg font-normal text-gray-500 dark:text-gray-400"></span></p>
+                        <ul class="space-y-3 text-gray-600 dark:text-gray-400 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Unlimited characters</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Custom voices</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Advanced cloning</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Dedicated support</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-outline btn-plan-enterprise w-full px-6 py-3 rounded-full ripple group-hover:bg-purple-500 group-hover:text-white transition-colors" data-tippy-content="Contact for Enterprise plan" aria-label="Contact for Enterprise plan">
+                            <i class="fas fa-envelope mr-2"></i> Contact Sales
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="max-w-3xl mx-auto mt-12 bg-gray-50 dark:bg-gray-700/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+                    <h3 class="text-xl font-semibold mb-3">Need help choosing?</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Compare plans or talk to our sales team to find the best solution for your needs.</p>
+                    <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <button class="btn btn-outline px-6 py-3 rounded-full ripple">
+                            <i class="fas fa-table mr-2"></i> Compare Plans
+                        </button>
+                        <button class="btn btn-primary px-6 py-3 rounded-full ripple">
+                            <i class="fas fa-headset mr-2"></i> Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="py-20 bg-gray-50 dark:bg-gray-900/50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center mb-16">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50 rounded-full mb-4">TESTIMONIALS</span>
+                    <h2 class="section-title text-4xl font-bold mb-4">Trusted by Thousands</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Don't just take our word for it. Here's what our users say about SKY TTS.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center mb-6">
+                            <img src="https://randomuser.me/api/portraits/women/32.jpg" class="w-12 h-12 rounded-full mr-4" alt="User">
+                            <div>
+                                <h4 class="font-semibold">Sarah Johnson</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Content Creator</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">"The voice quality is incredible! My audience thinks I hired professional voice actors for my videos."</p>
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center mb-6">
+                            <img src="https://randomuser.me/api/portraits/men/54.jpg" class="w-12 h-12 rounded-full mr-4" alt="User">
+                            <div>
+                                <h4 class="font-semibold">Michael Chen</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Developer</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">"The API integration was seamless. We've reduced our voiceover costs by 70% since switching to SKY TTS."</p>
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center mb-6">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" class="w-12 h-12 rounded-full mr-4" alt="User">
+                            <div>
+                                <h4 class="font-semibold">Emma Rodriguez</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">E-learning Specialist</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">"The multilingual support has been a game-changer for our global training programs. Highly recommended!"</p>
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-white dark:bg-gray-800" aria-labelledby="about-heading">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-6xl mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 rounded-full mb-4">ABOUT US</span>
+                            <h2 id="about-heading" class="section-title text-4xl font-bold mb-6 text-left">Innovating Speech Technology</h2>
+                            <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">SKY TTS was founded in 2025 with a mission to make advanced speech technology accessible to everyone. Our team of AI researchers and engineers are pushing the boundaries of what's possible with text-to-speech and speech-to-text technology.</p>
+                            <div class="space-y-4 mb-8">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400">Cutting-edge neural network models for lifelike speech synthesis</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400">Support for 50+ languages and 200+ unique voices</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400">Enterprise-grade security and privacy protections</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                                <a href="#pricing" class="btn btn-primary px-8 py-3 rounded-full font-semibold ripple" data-tippy-content="Join our community" aria-label="Join our community">Get Started</a>
+                                <a href="#contact" class="btn btn-outline px-8 py-3 rounded-full font-semibold ripple" aria-label="Contact us">Contact Us</a>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="relative z-10 bg-white dark:bg-gray-700 p-2 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
+                                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71" alt="Team working on AI" class="rounded-xl w-full h-auto">
+                            </div>
+                            <div class="absolute -bottom-6 -right-6 w-64 h-64 bg-blue-500 rounded-2xl opacity-10 dark:opacity-20"></div>
+                            <div class="absolute -top-6 -left-6 w-48 h-48 bg-purple-500 rounded-2xl opacity-10 dark:opacity-20"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl font-bold mb-6">Ready to Transform Your Content?</h2>
+                <p class="text-xl max-w-2xl mx-auto mb-8 opacity-90">Join thousands of creators, developers, and businesses using SKY TTS to bring their content to life.</p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="signup-cta-btn" class="btn btn-white px-8 py-4 rounded-full font-semibold text-lg ripple" aria-label="Sign up now">
+                        <span class="relative z-10">Sign Up - It's Free</span>
+                    </button>
+                    <a href="#features" class="btn btn-outline-white px-8 py-4 rounded-full font-semibold text-lg ripple" aria-label="Learn more">
+                        <span class="relative z-10">Learn More</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-white py-16" aria-label="Footer">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <h3 class="text-4xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-microphone-alt text-blue-400 mr-2"></i>
+                        SKY <span class="text-purple-400">TTS</span>
+                    </h3>
+                    <p class="text-gray-400 mb-6">Advanced AI speech solutions for everyone.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" data-tippy-content="Follow us on Facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com/home" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors" data-tippy-content="Follow us on X" aria-label="X"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.youtube.com/@SkyInfinite-Learning" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors" data-tippy-content="Subscribe on YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" data-tippy-content="Follow us on LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Product</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#features" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Features">Features</a></li>
+                        <li><a href="#pricing" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Pricing">Pricing</a></li>
+                        <li><a href="#tts" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Text-to-Speech">Text-to-Speech</a></li>
+                        <li><a href="#stt" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Speech-to-Text">Speech-to-Text</a></li>
+                        <li><a href="#voice-cloning" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Voice Cloning">Voice Cloning</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Resources</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Documentation">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="API Reference">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Tutorials">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Blog">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Community">Community</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Company</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="About Us">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Careers">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Press">Press</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Contact">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors" aria-label="Legal">Legal</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">© 2025 SKY TTS. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-blue-400 text-sm transition-colors" aria-label="Privacy Policy">Privacy Policy</a>
+                    <a href="#" class="text-gray-500 hover:text-blue-400 text-sm transition-colors" aria-label="Terms of Service">Terms of Service</a>
+                    <a href="#" class="text-gray-500 hover:text-blue-400 text-sm transition-colors" aria-label="Cookie Policy">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal hidden" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <button class="modal-close" data-modal="loginModal" aria-label="Close">×</button>
+            <div class="modal-header text-center mb-6">
+                <h2 id="loginModalTitle" class="modal-title text-3xl font-bold mb-2">Welcome Back</h2>
+                <p class="text-gray-600 dark:text-gray-400">Sign in to continue to SKY TTS</p>
+            </div>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="loginEmail" class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="form-control w-full p-4 rounded-lg" placeholder="your@email.com" required aria-label="Email">
+                </div>
+                <div>
+                    <label for="loginPassword" class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="form-control w-full p-4 rounded-lg" placeholder="••••••••" required aria-label="Password">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                    </label>
+                    <a href="#" class="text-sm text-blue-500 hover:underline">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary w-full py-3 rounded-full ripple">Sign In</button>
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span>
+                    </div>
+                </div>
+                <button id="googleLoginBtn" type="button" class="btn w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 ripple py-3 rounded-full">
+                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1.02.68-2.33 1.09-3.71 1.09-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C4.01 20.69 7.69 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.69 1 4.01 3.31 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Continue with Google
+                </button>
+                <p id="loginError" class="mt-4 text-center text-red-500 hidden"></p>
+                <p class="text-center text-gray-600 dark:text-gray-400">Don't have an account? <button id="switchToSignup" class="text-blue-500 hover:underline font-medium" aria-label="Switch to Sign Up">Sign Up</button></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal hidden" role="dialog" aria-labelledby="signupModalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <button class="modal-close" data-modal="signupModal" aria-label="Close">×</button>
+            <div class="modal-header text-center mb-6">
+                <h2 id="signupModalTitle" class="modal-title text-3xl font-bold mb-2">Create Account</h2>
+                <p class="text-gray-600 dark:text-gray-400">Join SKY TTS to get started</p>
+            </div>
+            <form id="signupForm" class="space-y-6">
+                <div>
+                    <label for="signupName" class="block text-sm font-medium mb-2">Full Name</label>
+                    <input type="text" id="signupName" class="form-control w-full p-4 rounded-lg" placeholder="John Doe" required aria-label="Name">
+                </div>
+                <div>
+                    <label for="signupEmail" class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="signupEmail" class="form-control w-full p-4 rounded-lg" placeholder="your@email.com" required aria-label="Email">
+                </div>
+                <div>
+                    <label for="signupPassword" class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="signupPassword" class="form-control w-full p-4 rounded-lg" placeholder="••••••••" required aria-label="Password">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">At least 8 characters with 1 number</p>
+                </div>
+                <div>
+                    <label for="signupConfirmPassword" class="block text-sm font-medium mb-2">Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" class="form-control w-full p-4 rounded-lg" placeholder="••••••••" required aria-label="Confirm Password">
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" id="terms" class="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500 mt-1" required>
+                    <label for="terms" class="ml-2 text-sm text-gray-600 dark:text-gray-400">I agree to the <a href="#" class="text-blue-500 hover:underline">Terms of Service</a> and <a href="#" class="text-blue-500 hover:underline">Privacy Policy</a></label>
+                </div>
+                <button type="submit" class="btn btn-primary w-full py-3 rounded-full ripple">Create Account</button>
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span>
+                    </div>
+                </div>
+                <button id="googleSignupBtn" type="button" class="btn w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 ripple py-3 rounded-full">
+                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1.02.68-2.33 1.09-3.71 1.09-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C4.01 20.69 7.69 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.69 1 4.01 3.31 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Continue with Google
+                </button>
+                <p id="signupError" class="mt-4 text-center text-red-500 hidden"></p>
+                <p class="text-center text-gray-600 dark:text-gray-400">Already have an account? <button id="switchToLogin" class="text-blue-500 hover:underline font-medium" aria-label="Switch to Login">Sign In</button></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal hidden" role="dialog" aria-labelledby="profileModalTitle">
+        <div class="modal-content">
+            <button class="modal-close" data-modal="profileModal" aria-label="Close">×</button>
+            <h2 id="profileModalTitle" class="modal-title text-3xl font-bold mb-8">Profile Settings</h2>
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+                <button class="tab-btn flex-1 py-3 text-blue-500 border-b-2 border-blue-500 font-medium" data-tab="profileInfo" aria-label="Profile Info">Profile</button>
+                <button class="tab-btn flex-1 py-3 text-gray-600 dark:text-gray-400 font-medium" data-tab="profileSettings" aria-label="Profile Settings">Security</button>
+            </div>
+            <div id="profileInfo" class="tab-content">
+                <div class="flex items-center mb-8">
+                    <div class="relative">
+                        <div class="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <i class="fas fa-user text-3xl text-blue-500"></i>
+                        </div>
+                        <button class="absolute bottom-0 right-0 w-8 h-8 bg-white dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-pencil-alt text-xs text-gray-600 dark:text-gray-300"></i>
+                        </button>
+                    </div>
+                    <div class="ml-6">
+                        <h3 class="text-xl font-semibold" id="profileName">User</h3>
+                        <p class="text-gray-600 dark:text-gray-400" id="profileEmail">user@example.com</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">First Name</label>
+                        <input type="text" class="form-control w-full p-3 rounded-lg" value="John">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Last Name</label>
+                        <input type="text" class="form-control w-full p-3 rounded-lg" value="Doe">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Plan</label>
+                    <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/30 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div>
+                            <p class="font-medium" id="profilePlan">Free</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">5,000 characters/day</p>
+                        </div>
+                        <a href="#pricing" class="text-sm text-blue-500 hover:underline font-medium">Upgrade</a>
+                    </div>
+                </div>
+                <button class="btn btn-primary w-full py-3 rounded-full ripple">Save Changes</button>
+            </div>
+            <div id="profileSettings" class="tab-content hidden">
+                <form id="settingsForm" class="space-y-6">
+                    <div>
+                        <label for="currentPassword" class="block text-sm font-medium mb-2">Current Password</label>
+                        <input type="password" id="currentPassword" class="form-control w-full p-3 rounded-lg" placeholder="Enter current password" aria-label="Current password">
+                    </div>
+                    <div>
+                        <label for="newPassword" class="block text-sm font-medium mb-2">New Password</label>
+                        <input type="password" id="newPassword" class="form-control w-full p-3 rounded-lg" placeholder="Enter new password" aria-label="New password">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">At least 8 characters with 1 number</p>
+                    </div>
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium mb-2">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control w-full p-3 rounded-lg" placeholder="Confirm new password" aria-label="Confirm new password">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full py-3 rounded-full ripple" aria-label="Update password">Update Password</button>
+                </form>
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4">Danger Zone</h3>
+                    <button class="btn btn-danger w-full py-3 rounded-full ripple flex items-center justify-center" aria-label="Delete account">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Delete Account
+                    </button>
+                </div>
+                <p id="settingsError" class="mt-4 text-center text-red-500 hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js" defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="/templates/script.js" defer></script>
+</body>
+</html>
